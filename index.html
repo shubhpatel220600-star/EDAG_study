@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDAG Fatigue Study Portal</title>
+    <style>
+        :root {
+            --primary: #004b87;
+            --primary-hover: #003666;
+            --bg-color: #f0f4f8;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --border-color: #e2e8f0;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: background-color 0.3s ease;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 22px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 10px;
+        }
+
+        p {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scrollable Info Box */
+        .info-scroll-box {
+            max-height: 400px;
+            overflow-y: auto;
+            text-align: left;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .info-scroll-box h3 { color: var(--primary); margin-top: 25px; }
+        .info-scroll-box h3:first-child { margin-top: 0; }
+        .info-scroll-box ul { padding-left: 20px; }
+        .info-scroll-box li { margin-bottom: 8px; }
+        
+        .alert-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffeeba;
+            padding: 12px;
+            margin: 15px 0;
+            color: #856404;
+            border-radius: 0 4px 4px 0;
+        }
+
+        /* Form Elements */
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        input[type="text"], input[type="number"], input[type="time"], select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            background-color: #f8fafc;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #fff;
+        }
+
+        /* Buttons */
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 75, 135, 0.1);
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 10px rgba(0, 75, 135, 0.15);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            box-shadow: none;
+        }
+        
+        .btn-outline:hover {
+            background-color: #f0f4f8;
+            color: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        /* KSS Buttons */
+        .kss-btn {
+            background-color: #f8fafc;
+            color: var(--text-main);
+            text-align: left;
+            border: 1px solid var(--border-color);
+            box-shadow: none;
+            padding: 14px 20px;
+            font-weight: 500;
+        }
+
+        .kss-btn:hover {
+            background-color: #e2e8f0;
+            border-color: #cbd5e1;
+            transform: none;
+        }
+
+        /* Timers & Sync */
+        .timer-display {
+            font-size: 56px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 30px 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+        #sync-btn {
+            background-color: var(--accent-green);
+            font-size: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+        }
+
+        #sync-btn:hover { background-color: #059669; }
+
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            text-align: left;
+            margin: 20px 0;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .checkbox-container input {
+            margin-top: 4px;
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+        
+        .checkbox-container label {
+            font-weight: normal;
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+        
+        /* Task Area Placeholder */
+        .task-area {
+            width: 100%; 
+            height: 250px; 
+            background: #e2e8f0; 
+            border-radius: 8px;
+            margin-bottom: 25px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            border: 2px dashed #94a3b8;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Phase 1: Full Study Information -->
+    <div id="step-info" class="section active">
+        <h1>Study Information & Privacy Notice</h1>
+        <p>Please review the study details before proceeding.</p>
+        
+        <div class="info-scroll-box">
+            <h3>1. Study Description</h3>
+            <p>This proof-of-concept study investigates how effectively camera-based and wearable-based solutions can detect natural changes in human fatigue throughout the day. This is a purely observational study conducted at a standard desk; there is no vehicle involvement and no driving simulation required.</p>
+
+            <h3>2. Session Procedure</h3>
+            <p>Participants will complete three separate sessions (Morning, Post-Lunch, Evening) to capture the natural daily drift of fatigue.</p>
+            <ul>
+                <li><strong>Duration:</strong> 20 to 25 minutes per session.</li>
+                <li><strong>Task:</strong> You will sit quietly for a 2-minute resting baseline, followed by a 10-minute standardized screen task. Talking and smartphone usage are strictly prohibited.</li>
+                <li><strong>Sensors:</strong> You will wear a Samsung Galaxy Watch on your non-dominant wrist and will be recorded by a standard webcam.</li>
+            </ul>
+
+            <h3>3. Data Protection & GDPR Compliance</h3>
+            <div class="alert-box">
+                <strong>Cross-Border Transfer Notice:</strong> Data collected during these sessions in India will be securely transferred to servers in Germany for analysis. Under the GDPR, this requires your explicit consent.
+            </div>
+            <ul>
+                <li><strong>What is Collected:</strong> Physiological wearable data (HR, IBI, Accelerometer), camera-extracted features (fatigue scores, blink rates, head posture), KSS scores, context data, and timestamps.</li>
+                <li><strong>What is NOT Collected:</strong> Your name, employee ID, or email will <strong>not</strong> be stored. All data is pseudonymized using a Participant ID.</li>
+                <li><strong>Purpose:</strong> Master's thesis research and algorithm training. Data will <strong>never</strong> be used for HR evaluations.</li>
+                <li><strong>Subject Rights:</strong> You have the right to request access, correction, deletion, or withdraw consent at any time without consequence.</li>
+            </ul>
+            
+            <h3>4. Inclusion & Exclusion Criteria</h3>
+            <ul>
+                <li>18+ years old.</li>
+                <li>No serious cardiovascular conditions or pacemakers.</li>
+                <li>No wrist tattoos (interferes with optical sensors).</li>
+                <li>Not taking heart-rate-altering medications.</li>
+            </ul>
+        </div>
+        
+        <button onclick="nextStep('info', 'onboarding')">I have read the information</button>
+    </div>
+
+    <!-- Phase 2: Onboarding & Consent -->
+    <div id="step-onboarding" class="section">
+        <h2>Registration & Consent</h2>
+        
+        <div class="form-group">
+            <label for="participant-id">Participant ID:</label>
+            <input type="text" id="participant-id" placeholder="e.g., P01" required autocomplete="off">
+        </div>
+        
+        <div class="checkbox-container">
+            <input type="checkbox" id="consent">
+            <label for="consent">I consent to the collection of my physiological and camera data for this study. I understand my participation is voluntary and I can withdraw at any time.</label>
+        </div>
+        
+        <button onclick="validateOnboarding()">Start Session</button>
+        <button class="btn-outline" onclick="nextStep('onboarding', 'info')">Back</button>
+    </div>
+
+    <!-- Phase 3: Context Survey -->
+    <div id="step-context" class="section">
+        <h2>Pre-Session Context</h2>
+        
+        <div class="form-group">
+            <label>Measurement Session:</label>
+            <select id="session-id">
+                <option value="M1">M1 (Morning / Baseline)</option>
+                <option value="M2">M2 (Post-Lunch)</option>
+                <option value="M3">M3 (Evening / End of day)</option>
+            </select>
+            
+            <label>Approximate sleep last night (hours):</label>
+            <input type="number" id="sleep-hours" step="0.5" placeholder="e.g. 7.5">
+            
+            <label>Wake-up time today:</label>
+            <input type="time" id="wake-time">
+            
+            <label>Time of last caffeine intake (Leave blank if none):</label>
+            <input type="time" id="caffeine-time">
+            
+            <label>Subjective Well-being (1 = Very bad, 5 = Very good):</label>
+            <select id="well-being">
+                <option value="5">5 - Very good</option>
+                <option value="4">4 - Good</option>
+                <option value="3">3 - Neutral</option>
+                <option value="2">2 - Bad</option>
+                <option value="1">1 - Very bad</option>
+            </select>
+        </div>
+        
+        <button onclick="saveContextAndProceed()">Next: Tech Sync</button>
+    </div>
+
+    <!-- Phase 4: Sync Marker -->
+    <div id="step-sync" class="section">
+        <h2>Camera & Wearable Sync</h2>
+        <p><strong>Operator:</strong> Ensure the camera is recording and the wearable has strong skin contact.</p>
+        <p>Click the button below to flash the screen and log the sync timestamp.</p>
+        <br>
+        <button id="sync-btn" onclick="triggerSync()">CLICK TO SYNC</button>
+    </div>
+
+    <!-- Phase 5: Baseline Timer -->
+    <div id="step-baseline" class="section">
+        <h2>Resting Baseline</h2>
+        <p>Please sit completely still, breathe normally, and look straight ahead at the screen.</p>
+        <div class="timer-display" id="baseline-timer">02:00</div>
+        <button onclick="startTimer('baseline', 120, 'step-pre-kss')" id="start-baseline-btn">Start 2-Min Baseline</button>
+    </div>
+
+    <!-- Phase 6: Pre-Task KSS -->
+    <div id="step-pre-kss" class="section">
+        <h2>Current Sleepiness (Pre-Task)</h2>
+        <p>Select the option that best reflects how you feel right now:</p>
+        <div id="kss-pre-buttons">
+            <!-- Buttons generated via JS -->
+        </div>
+    </div>
+
+    <!-- Phase 7: Standardized Task -->
+    <div id="step-task" class="section">
+        <h2>Measurement Task</h2>
+        <p>Please look at the screen and remain focused. Do not use your smartphone or talk.</p>
+        
+        <div class="task-area">
+            <em>[Standardized Visual Task Video/Animation goes here]</em>
+        </div>
+        
+        <div class="timer-display" id="task-timer">10:00</div>
+        <button onclick="startTimer('task', 600, 'step-post-kss')" id="start-task-btn">Start 10-Min Task</button>
+    </div>
+
+    <!-- Phase 8: Post-Task KSS -->
+    <div id="step-post-kss" class="section">
+        <h2>Current Sleepiness (Post-Task)</h2>
+        <p>Select the option that best reflects how you feel right now:</p>
+        <div id="kss-post-buttons">
+            <!-- Buttons generated via JS -->
+        </div>
+    </div>
+
+    <!-- Phase 9: Final Check -->
+    <div id="step-final" class="section">
+        <h2>Final Question</h2>
+        <p>Do you feel more tired now than when the session started?</p>
+        <button onclick="saveFinal('Yes')">Yes, more tired</button>
+        <button class="btn-outline" onclick="saveFinal('No')">No, about the same or less</button>
+    </div>
+
+    <!-- Phase 10: Done -->
+    <div id="step-done" class="section">
+        <h2>Session Complete!</h2>
+        <p>The data has been saved and the CSV protocol file is downloading to your computer.</p>
+        <br>
+        <div class="alert-box" style="text-align: left; background-color: #d1ecf1; border-left-color: #17a2b8; color: #0c5460;">
+            <strong>Operator Checklist:</strong><br>
+            1. Verify the camera video saved successfully.<br>
+            2. Verify the wearable data synced.<br>
+            3. Check the downloaded CSV file.
+        </div>
+        <br>
+        <button onclick="location.reload()">Start New Participant</button>
+    </div>
+
+</div>
+
+<script>
+    // Global data object
+    let studyData = {
+        participant_id: "",
+        session_id: "",
+        date: "",
+        time_started: "",
+        sync_timestamp_ms: "",
+        sleep_hours: "",
+        wake_time: "",
+        caffeine_time: "",
+        well_being: "",
+        kss_pre: "",
+        kss_post: "",
+        feels_more_tired: ""
+    };
+
+    const kssLabels = [
+        "1 - Extremely alert",
+        "2 - Very alert",
+        "3 - Alert",
+        "4 - Rather alert",
+        "5 - Neither alert nor sleepy",
+        "6 - Some signs of sleepiness",
+        "7 - Sleepy, but no effort to keep awake",
+        "8 - Sleepy, some effort to keep awake",
+        "9 - Very sleepy, great effort to keep awake, fighting sleep"
+    ];
+
+    // Initialize KSS buttons
+    window.onload = () => {
+        const preDiv = document.getElementById('kss-pre-buttons');
+        const postDiv = document.getElementById('kss-post-buttons');
+        
+        kssLabels.forEach((label, index) => {
+            let val = index + 1;
+            preDiv.innerHTML += `<button class="kss-btn" onclick="saveKSS('pre', ${val})">${label}</button>`;
+            postDiv.innerHTML += `<button class="kss-btn" onclick="saveKSS('post', ${val})">${label}</button>`;
+        });
+    };
+
+    function nextStep(currentId, nextId) {
+        document.getElementById(`step-${currentId}`).classList.remove('active');
+        document.getElementById(`step-${nextId}`).classList.add('active');
+    }
+
+    function validateOnboarding() {
+        const pid = document.getElementById('participant-id').value.trim();
+        const consent = document.getElementById('consent').checked;
+        
+        if(!pid || !consent) {
+            alert("Please enter a Participant ID and check the consent box to proceed.");
+            return;
+        }
+        
+        studyData.participant_id = pid;
+        
+        // Set Date/Time
+        let now = new Date();
+        studyData.date = now.toISOString().split('T')[0];
+        studyData.time_started = now.toTimeString().split(' ')[0].substring(0,5).replace(':', '');
+        
+        nextStep('onboarding', 'context');
+    }
+
+    function saveContextAndProceed() {
+        studyData.session_id = document.getElementById('session-id').value;
+        studyData.sleep_hours = document.getElementById('sleep-hours').value;
+        studyData.wake_time = document.getElementById('wake-time').value;
+        studyData.caffeine_time = document.getElementById('caffeine-time').value;
+        studyData.well_being = document.getElementById('well-being').value;
+        nextStep('context', 'sync');
+    }
+
+    function triggerSync() {
+        studyData.sync_timestamp_ms = Date.now();
+        
+        // Flash screen for camera
+        document.body.style.backgroundColor = "var(--accent-red)";
+        setTimeout(() => {
+            document.body.style.backgroundColor = "var(--accent-green)";
+            setTimeout(() => {
+                document.body.style.backgroundColor = ""; // Back to normal
+                nextStep('sync', 'baseline');
+            }, 500);
+        }, 500);
+    }
+
+    let timerInterval;
+    function startTimer(type, seconds, nextPhase) {
+        document.getElementById(`start-${type}-btn`).style.display = 'none';
+        let display = document.getElementById(`${type}-timer`);
+        
+        timerInterval = setInterval(() => {
+            let m = Math.floor(seconds / 60);
+            let s = seconds % 60;
+            display.innerText = (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+            
+            if (seconds <= 0) {
+                clearInterval(timerInterval);
+                nextStep(type, nextPhase.replace('step-', ''));
+            }
+            seconds--;
+        }, 1000);
+    }
+
+    function saveKSS(phase, value) {
+        if(phase === 'pre') {
+            studyData.kss_pre = value;
+            nextStep('pre-kss', 'task');
+        } else {
+            studyData.kss_post = value;
+            nextStep('post-kss', 'final');
+        }
+    }
+
+    function saveFinal(answer) {
+        studyData.feels_more_tired = answer;
+        nextStep('final', 'done');
+        downloadCSV();
+    }
+
+    function downloadCSV() {
+        const headers = Object.keys(studyData).join(",");
+        const values = Object.values(studyData).map(v => `"${v}"`).join(",");
+        const csvContent = headers + "\n" + values;
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        
+        // Format: P03_M2_2026-08-15_1330_PROTOCOL.csv
+        const filename = `${studyData.participant_id}_${studyData.session_id}_${studyData.date}_${studyData.time_started}_PROTOCOL.csv`;
+        
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+
+</body>
+</html>
