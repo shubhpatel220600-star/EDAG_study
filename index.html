@@ -1,1057 +1,554 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fatigue Study — Session Portal</title>
-<style>
-  :root{
-    --bg: #0b0e11;
-    --panel: #141a20;
-    --panel-2: #1b232b;
-    --border: #262f38;
-    --text: #e7edf1;
-    --text-dim: #8a97a0;
-    --text-faint: #5b6670;
-    --amber: #f5a623;
-    --amber-dim: #7a5518;
-    --cyan: #3ddbd9;
-    --red: #e5484d;
-    --red-dim: #4a1f21;
-    --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  }
-  *{ box-sizing: border-box; }
-  html,body{ height:100%; margin:0; }
-  body{
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    -webkit-font-smoothing: antialiased;
-  }
-  #app{ display:flex; flex-direction:column; min-height:100vh; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDAG Fatigue Study Portal</title>
+    <style>
+        :root {
+            --primary: #004b87;
+            --primary-hover: #003666;
+            --bg-color: #f0f4f8;
+            --card-bg: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --border-color: #e2e8f0;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+        }
 
-  /* ---------- Top bar ---------- */
-  header#topbar{
-    display:flex; align-items:center; gap:16px;
-    padding:10px 18px;
-    background: var(--panel);
-    border-bottom:1px solid var(--border);
-    flex-wrap: wrap;
-  }
-  .brand{ font-weight:700; letter-spacing:0.06em; font-size:13px; text-transform:uppercase; }
-  .brand-sub{ display:block; font-weight:400; text-transform:none; letter-spacing:normal; color:var(--text-dim); font-size:11px; margin-top:2px; }
-  #sessionMeta{
-    font-family: var(--mono); font-size:13px; color: var(--text-dim);
-    display:flex; gap:14px; flex-wrap:wrap;
-  }
-  #sessionMeta b{ color: var(--text); }
-  .spacer{ flex:1; }
-  #elapsedWrap{ font-family: var(--mono); font-size:13px; color: var(--text-dim); text-align:right; }
-  #elapsedWrap b{ color: var(--amber); font-size:15px; }
-  .abort-btn{
-    border:1px solid var(--red); color: var(--red); background: transparent;
-    padding:8px 14px; font-size:11px; font-weight:700; letter-spacing:0.08em;
-    text-transform:uppercase; border-radius:4px; cursor:pointer;
-  }
-  .abort-btn:hover{ background: var(--red); color:#fff; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            transition: background-color 0.3s ease;
+        }
 
-  /* ---------- Phase timeline ---------- */
-  nav#timeline{
-    display:flex; background: var(--panel); border-bottom:1px solid var(--border);
-    padding: 0 18px 10px 18px; gap:4px; overflow-x:auto;
-  }
-  .tl-seg{
-    flex:1; min-width:96px; display:flex; flex-direction:column; gap:6px; padding-top:8px;
-  }
-  .tl-bar{ height:3px; background: var(--border); border-radius:2px; overflow:hidden; position:relative; }
-  .tl-bar-fill{ position:absolute; left:0; top:0; bottom:0; width:0%; background: var(--amber); transition: width .3s linear; }
-  .tl-seg.done .tl-bar{ background: var(--cyan); }
-  .tl-seg.current .tl-bar{ background: var(--border); }
-  .tl-seg.current .tl-bar-fill{ background: var(--amber); }
-  .tl-label{ font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color: var(--text-faint); font-family: var(--mono); }
-  .tl-seg.current .tl-label{ color: var(--amber); }
-  .tl-seg.done .tl-label{ color: var(--cyan); }
-  .tl-num{ font-family: var(--mono); }
+        .container {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+        }
 
-  /* ---------- Stage ---------- */
-  main#stage{ flex:1; display:flex; justify-content:center; padding: 36px 20px 60px; }
-  .card{
-    width:100%; max-width: 720px; background: var(--panel); border:1px solid var(--border);
-    border-radius:6px; padding: 32px; align-self:flex-start;
-  }
-  .card-wide{ max-width: 860px; }
-  h1.phase-title{ font-size:12px; letter-spacing:0.1em; text-transform:uppercase; color: var(--amber); margin:0 0 4px; font-family: var(--mono); }
-  h2.phase-heading{ font-size:22px; margin:0 0 22px; font-weight:600; }
-  p.lede{ color: var(--text-dim); line-height:1.6; margin: 0 0 20px; }
+        h1 {
+            color: var(--primary);
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
 
-  label.field-label{ display:block; font-size:12px; color: var(--text-dim); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px; }
-  .field{ margin-bottom:18px; }
-  input[type=text], input[type=number], input[type=time], select, textarea{
-    width:100%; background: var(--panel-2); border:1px solid var(--border); color: var(--text);
-    padding:11px 12px; border-radius:4px; font-family: var(--sans); font-size:14px;
-  }
-  input[type=number]{ font-family: var(--mono); }
-  textarea{ font-family: var(--sans); resize: vertical; min-height:90px; line-height:1.5; }
-  input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible{
-    outline: 2px solid var(--amber); outline-offset:2px;
-  }
-  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-  .row3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
-  @media (max-width: 620px){ .row2, .row3{ grid-template-columns:1fr; } }
+        h2 {
+            color: var(--primary);
+            font-size: 22px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--bg-color);
+            padding-bottom: 10px;
+        }
 
-  .choice-row{ display:flex; gap:10px; flex-wrap:wrap; }
-  .choice-btn{
-    flex:1; min-width:70px; padding:10px 8px; text-align:center; background: var(--panel-2);
-    border:1px solid var(--border); color: var(--text-dim); border-radius:4px; cursor:pointer; font-size:13px;
-  }
-  .choice-btn.selected{ border-color: var(--amber); color: var(--amber); background: rgba(245,166,35,0.08); }
+        p {
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
 
-  .checklist-item{ display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid var(--border); }
-  .checklist-item:last-child{ border-bottom:none; }
-  .checklist-item input[type=checkbox]{ margin-top:3px; width:16px; height:16px; accent-color: var(--amber); flex-shrink:0; }
-  .checklist-item label{ font-size:14px; line-height:1.5; cursor:pointer; }
+        .section {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
 
-  .btn{
-    padding:12px 22px; border-radius:4px; font-size:13px; font-weight:700; letter-spacing:0.05em;
-    text-transform:uppercase; cursor:pointer; border:1px solid var(--border); background: var(--panel-2); color: var(--text);
-  }
-  .btn-primary{ background: var(--amber); border-color: var(--amber); color:#1a1204; }
-  .btn-primary:disabled{ background: var(--amber-dim); border-color: var(--amber-dim); color:#8a7248; cursor:not-allowed; }
-  .btn-ghost{ background: transparent; }
-  .btn-danger{ background: transparent; border-color: var(--red); color: var(--red); }
-  .btn-danger:hover{ background: var(--red); color:#fff; }
-  .actions{ display:flex; justify-content:flex-end; gap:12px; margin-top:26px; }
-  .actions.split{ justify-content:space-between; }
+        .active {
+            display: block;
+        }
 
-  .hint{ font-size:12px; color: var(--text-faint); margin-top:6px; }
-  .warn{ font-size:12px; color: var(--amber); margin-top:6px; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-  /* ---------- Sync / flash ---------- */
-  #flashOverlay{ position:fixed; inset:0; background:#fff; opacity:0; pointer-events:none; transition: opacity 120ms ease-out; z-index:999; }
-  #flashOverlay.on{ opacity:1; transition: opacity 20ms; }
-  .sync-readout{ font-family: var(--mono); background: var(--panel-2); border:1px solid var(--border); border-radius:4px; padding:18px; text-align:center; margin-top:18px; }
-  .sync-readout .big{ font-size:28px; color: var(--cyan); }
-  .sync-btn-wrap{ text-align:center; margin:28px 0; }
-  .sync-btn{
-    width:180px; height:180px; border-radius:50%; border:3px solid var(--amber); background: rgba(245,166,35,0.08);
-    color: var(--amber); font-size:16px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer;
-  }
-  .sync-btn:active{ background: var(--amber); color:#1a1204; }
-  .sync-btn:disabled{ opacity:0.35; cursor:default; }
+        /* Scrollable Info Box */
+        .info-scroll-box {
+            max-height: 400px;
+            overflow-y: auto;
+            text-align: left;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
 
-  /* ---------- Timers ---------- */
-  .timer-wrap{ text-align:center; padding: 28px 0 8px; }
-  .timer-digits{ font-family: var(--mono); font-size: clamp(56px, 10vw, 120px); font-variant-numeric: tabular-nums; line-height:1; color: var(--text); letter-spacing:0.02em; }
-  .timer-digits.warn-color{ color: var(--amber); }
-  .timer-caption{ color: var(--text-dim); font-size:13px; text-transform:uppercase; letter-spacing:0.08em; margin-top:10px; }
-  .instructions-block{ background: var(--panel-2); border:1px solid var(--border); border-radius:6px; padding:22px; margin:22px 0; text-align:center; font-size:16px; line-height:1.7; }
+        .info-scroll-box h3 { color: var(--primary); margin-top: 25px; }
+        .info-scroll-box h3:first-child { margin-top: 0; }
+        .info-scroll-box ul { padding-left: 20px; }
+        .info-scroll-box li { margin-bottom: 8px; }
+        
+        .alert-box {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffeeba;
+            padding: 12px;
+            margin: 15px 0;
+            color: #856404;
+            border-radius: 0 4px 4px 0;
+        }
 
-  /* ---------- KSS ---------- */
-  .kss-list{ display:flex; flex-direction:column; gap:8px; margin: 18px 0; }
-  .kss-opt{
-    display:flex; align-items:center; gap:14px; padding:12px 14px; border:1px solid var(--border);
-    background: var(--panel-2); border-radius:4px; cursor:pointer; text-align:left;
-  }
-  .kss-opt .num{ font-family: var(--mono); font-size:18px; width:26px; text-align:center; color: var(--text-dim); flex-shrink:0; }
-  .kss-opt .lbl{ font-size:14px; }
-  .kss-opt.selected{ border-color: var(--cyan); background: rgba(61,219,217,0.08); }
-  .kss-opt.selected .num{ color: var(--cyan); }
+        /* Form Elements */
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
 
-  /* ---------- Task phase ---------- */
-  .task-banner{ display:flex; gap:18px; justify-content:center; flex-wrap:wrap; padding:10px 0 20px; border-bottom:1px solid var(--border); margin-bottom:20px; }
-  .task-rule{ font-size:12px; text-transform:uppercase; letter-spacing:0.06em; color: var(--red); border:1px solid var(--red-dim); padding:6px 10px; border-radius:4px; }
-  .task-content{ background: var(--panel-2); border:1px solid var(--border); border-radius:6px; padding:26px; font-size:16px; line-height:1.8; color: var(--text); min-height:120px; }
-  .placeholder-flag{ font-size:11px; color: var(--amber); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px; }
-  details.task-edit{ margin-top:14px; }
-  details.task-edit summary{ cursor:pointer; font-size:12px; color: var(--text-dim); text-transform:uppercase; letter-spacing:0.05em; }
-  .mid-kss-banner{ position:fixed; bottom:22px; left:50%; transform:translateX(-50%); background: var(--panel); border:1px solid var(--amber); border-radius:6px; padding:12px 18px; display:flex; align-items:center; gap:14px; z-index:200; box-shadow: 0 6px 24px rgba(0,0,0,0.4); }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
 
-  /* ---------- PVT ---------- */
-  .pvt-stage{ display:flex; flex-direction:column; align-items:center; padding: 20px 0; }
-  .pvt-box{
-    width:260px; height:260px; border-radius:10px; border:2px solid var(--border); background: var(--panel-2);
-    display:flex; align-items:center; justify-content:center; font-family: var(--mono); font-size:20px; color: var(--text-dim);
-    cursor:pointer; user-select:none; transition: background 60ms linear, border-color 60ms linear;
-  }
-  .pvt-box.go{ background: var(--red); border-color: var(--red); color:#fff; font-size:15px; }
-  .pvt-stats{ display:flex; gap:26px; margin-top:22px; font-family: var(--mono); font-size:13px; color: var(--text-dim); }
-  .pvt-stats b{ color: var(--text); font-size:16px; display:block; }
+        input[type="text"], input[type="number"], input[type="time"], select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            background-color: #f8fafc;
+            transition: border-color 0.2s;
+        }
 
-  /* ---------- Export / summary ---------- */
-  .summary-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px 24px; margin: 16px 0 26px; }
-  .summary-item{ border-bottom:1px solid var(--border); padding-bottom:10px; }
-  .summary-item .k{ font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color: var(--text-faint); }
-  .summary-item .v{ font-family: var(--mono); font-size:14px; margin-top:3px; }
-  .tag-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
-  .tag-btn{ padding:8px 12px; border-radius:14px; border:1px solid var(--border); background: var(--panel-2); color: var(--text-dim); font-size:12px; cursor:pointer; }
-  .tag-btn:hover{ border-color: var(--amber); color: var(--amber); }
-  .log-list{ list-style:none; margin:0 0 14px; padding:0; }
-  .log-list li{ font-family: var(--mono); font-size:12.5px; color: var(--text-dim); padding:7px 0; border-bottom:1px solid var(--border); }
-  .abort-flag{ background: var(--red-dim); border:1px solid var(--red); color:#ffb3b6; padding:12px 14px; border-radius:4px; font-size:13px; margin-bottom:18px; }
-  .rest-flag{ background: rgba(245,166,35,0.1); border:1px solid var(--amber); color: var(--amber); padding:12px 14px; border-radius:4px; font-size:13px; margin-bottom:18px; }
-  .export-confirm{ background: rgba(61,219,217,0.08); border:1px solid var(--cyan); color: var(--cyan); padding:12px 14px; border-radius:4px; font-size:13px; margin-bottom:18px; font-family: var(--mono); }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #fff;
+        }
 
-  /* ---------- Modal ---------- */
-  .modal-backdrop{ position:fixed; inset:0; background: rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:500; padding:20px; }
-  .modal-backdrop.hidden{ display:none; }
-  .modal-panel{ width:100%; max-width:440px; background: var(--panel); border:1px solid var(--border); border-radius:8px; padding:26px; }
-  .modal-panel h3{ margin:0 0 6px; font-size:17px; }
-  .modal-panel p{ color: var(--text-dim); font-size:13px; line-height:1.6; margin: 0 0 18px; }
-  .reason-list{ display:flex; flex-direction:column; gap:8px; margin-bottom:18px; }
-  .reason-list button{ text-align:left; }
+        /* Buttons */
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 75, 135, 0.1);
+        }
 
-  footer#footBar{ text-align:center; padding:14px; font-size:11px; color: var(--text-faint); font-family: var(--mono); border-top:1px solid var(--border); }
-</style>
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 10px rgba(0, 75, 135, 0.15);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            box-shadow: none;
+        }
+        
+        .btn-outline:hover {
+            background-color: #f0f4f8;
+            color: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        /* KSS Buttons */
+        .kss-btn {
+            background-color: #f8fafc;
+            color: var(--text-main);
+            text-align: left;
+            border: 1px solid var(--border-color);
+            box-shadow: none;
+            padding: 14px 20px;
+            font-weight: 500;
+        }
+
+        .kss-btn:hover {
+            background-color: #e2e8f0;
+            border-color: #cbd5e1;
+            transform: none;
+        }
+
+        /* Timers & Sync */
+        .timer-display {
+            font-size: 56px;
+            font-weight: bold;
+            color: var(--primary);
+            margin: 30px 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+        #sync-btn {
+            background-color: var(--accent-green);
+            font-size: 20px;
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+        }
+
+        #sync-btn:hover { background-color: #059669; }
+
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            text-align: left;
+            margin: 20px 0;
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .checkbox-container input {
+            margin-top: 4px;
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+        
+        .checkbox-container label {
+            font-weight: normal;
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+        
+        /* Task Area Placeholder */
+        .task-area {
+            width: 100%; 
+            height: 250px; 
+            background: #e2e8f0; 
+            border-radius: 8px;
+            margin-bottom: 25px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            border: 2px dashed #94a3b8;
+            color: #64748b;
+        }
+    </style>
 </head>
 <body>
-<div id="app">
-  <header id="topbar">
-    <div class="brand">Fatigue Study<span class="brand-sub">PoC · Camera vs. Wearable · Local Portal</span></div>
-    <div id="sessionMeta">— / —</div>
-    <div class="spacer"></div>
-    <div id="elapsedWrap">Session elapsed<br><b id="elapsedDigits">00:00</b></div>
-    <button class="abort-btn" id="abortOpenBtn">Abort Session</button>
-  </header>
-  <nav id="timeline"></nav>
-  <main id="stage"></main>
-  <footer id="footBar">Offline local portal — no network connection used or required.</footer>
-</div>
 
-<div id="flashOverlay"></div>
+<div class="container">
+    
+    <!-- Phase 1: Full Study Information -->
+    <div id="step-info" class="section active">
+        <h1>Study Information & Privacy Notice</h1>
+        <p>Please review the study details before proceeding.</p>
+        
+        <div class="info-scroll-box">
+            <h3>1. Study Description</h3>
+            <p>This proof-of-concept study investigates how effectively camera-based and wearable-based solutions can detect natural changes in human fatigue throughout the day. This is a purely observational study conducted at a standard desk; there is no vehicle involvement and no driving simulation required.</p>
 
-<div class="modal-backdrop hidden" id="abortModal">
-  <div class="modal-panel">
-    <h3>Abort this session?</h3>
-    <p>Select the reason. The session will end immediately and the data collected so far will be exported for review.</p>
-    <div class="reason-list" id="abortReasonList"></div>
-    <div class="actions">
-      <button class="btn btn-ghost" id="abortCancelBtn">Cancel</button>
+            <h3>2. Session Procedure</h3>
+            <p>Participants will complete three separate sessions (Morning, Post-Lunch, Evening) to capture the natural daily drift of fatigue.</p>
+            <ul>
+                <li><strong>Duration:</strong> 20 to 25 minutes per session.</li>
+                <li><strong>Task:</strong> You will sit quietly for a 2-minute resting baseline, followed by a 10-minute standardized screen task. Talking and smartphone usage are strictly prohibited.</li>
+                <li><strong>Sensors:</strong> You will wear a Samsung Galaxy Watch on your non-dominant wrist and will be recorded by a standard webcam.</li>
+            </ul>
+
+            <h3>3. Data Protection & GDPR Compliance</h3>
+            <div class="alert-box">
+                <strong>Cross-Border Transfer Notice:</strong> Data collected during these sessions in India will be securely transferred to servers in Germany for analysis. Under the GDPR, this requires your explicit consent.
+            </div>
+            <ul>
+                <li><strong>What is Collected:</strong> Physiological wearable data (HR, IBI, Accelerometer), camera-extracted features (fatigue scores, blink rates, head posture), KSS scores, context data, and timestamps.</li>
+                <li><strong>What is NOT Collected:</strong> Your name, employee ID, or email will <strong>not</strong> be stored. All data is pseudonymized using a Participant ID.</li>
+                <li><strong>Purpose:</strong> Master's thesis research and algorithm training. Data will <strong>never</strong> be used for HR evaluations.</li>
+                <li><strong>Subject Rights:</strong> You have the right to request access, correction, deletion, or withdraw consent at any time without consequence.</li>
+            </ul>
+            
+            <h3>4. Inclusion & Exclusion Criteria</h3>
+            <ul>
+                <li>18+ years old.</li>
+                <li>No serious cardiovascular conditions or pacemakers.</li>
+                <li>No wrist tattoos (interferes with optical sensors).</li>
+                <li>Not taking heart-rate-altering medications.</li>
+            </ul>
+        </div>
+        
+        <button onclick="nextStep('info', 'onboarding')">I have read the information</button>
     </div>
-  </div>
-</div>
 
-<div class="modal-backdrop hidden" id="midKssModal">
-  <div class="modal-panel">
-    <h3>Mid-task KSS</h3>
-    <p>Optional. Ask the participant to rate their current sleepiness.</p>
-    <div class="kss-list" id="midKssList"></div>
-    <div class="actions">
-      <button class="btn btn-ghost" id="midKssSkipBtn">Skip</button>
+    <!-- Phase 2: Onboarding & Consent -->
+    <div id="step-onboarding" class="section">
+        <h2>Registration & Consent</h2>
+        
+        <div class="form-group">
+            <label for="participant-id">Participant ID:</label>
+            <input type="text" id="participant-id" placeholder="e.g., P01" required autocomplete="off">
+        </div>
+        
+        <div class="checkbox-container">
+            <input type="checkbox" id="consent">
+            <label for="consent">I consent to the collection of my physiological and camera data for this study. I understand my participation is voluntary and I can withdraw at any time.</label>
+        </div>
+        
+        <button onclick="validateOnboarding()">Start Session</button>
+        <button class="btn-outline" onclick="nextStep('onboarding', 'info')">Back</button>
     </div>
-  </div>
+
+    <!-- Phase 3: Context Survey -->
+    <div id="step-context" class="section">
+        <h2>Pre-Session Context</h2>
+        
+        <div class="form-group">
+            <label>Measurement Session:</label>
+            <select id="session-id">
+                <option value="M1">M1 (Morning / Baseline)</option>
+                <option value="M2">M2 (Post-Lunch)</option>
+                <option value="M3">M3 (Evening / End of day)</option>
+            </select>
+            
+            <label>Approximate sleep last night (hours):</label>
+            <input type="number" id="sleep-hours" step="0.5" placeholder="e.g. 7.5">
+            
+            <label>Wake-up time today:</label>
+            <input type="time" id="wake-time">
+            
+            <label>Time of last caffeine intake (Leave blank if none):</label>
+            <input type="time" id="caffeine-time">
+            
+            <label>Subjective Well-being (1 = Very bad, 5 = Very good):</label>
+            <select id="well-being">
+                <option value="5">5 - Very good</option>
+                <option value="4">4 - Good</option>
+                <option value="3">3 - Neutral</option>
+                <option value="2">2 - Bad</option>
+                <option value="1">1 - Very bad</option>
+            </select>
+        </div>
+        
+        <button onclick="saveContextAndProceed()">Next: Tech Sync</button>
+    </div>
+
+    <!-- Phase 4: Sync Marker -->
+    <div id="step-sync" class="section">
+        <h2>Camera & Wearable Sync</h2>
+        <p><strong>Operator:</strong> Ensure the camera is recording and the wearable has strong skin contact.</p>
+        <p>Click the button below to flash the screen and log the sync timestamp.</p>
+        <br>
+        <button id="sync-btn" onclick="triggerSync()">CLICK TO SYNC</button>
+    </div>
+
+    <!-- Phase 5: Baseline Timer -->
+    <div id="step-baseline" class="section">
+        <h2>Resting Baseline</h2>
+        <p>Please sit completely still, breathe normally, and look straight ahead at the screen.</p>
+        <div class="timer-display" id="baseline-timer">02:00</div>
+        <button onclick="startTimer('baseline', 120, 'step-pre-kss')" id="start-baseline-btn">Start 2-Min Baseline</button>
+    </div>
+
+    <!-- Phase 6: Pre-Task KSS -->
+    <div id="step-pre-kss" class="section">
+        <h2>Current Sleepiness (Pre-Task)</h2>
+        <p>Select the option that best reflects how you feel right now:</p>
+        <div id="kss-pre-buttons">
+            <!-- Buttons generated via JS -->
+        </div>
+    </div>
+
+    <!-- Phase 7: Standardized Task -->
+    <div id="step-task" class="section">
+        <h2>Measurement Task</h2>
+        <p>Please look at the screen and remain focused. Do not use your smartphone or talk.</p>
+        
+        <div class="task-area">
+            <em>[Standardized Visual Task Video/Animation goes here]</em>
+        </div>
+        
+        <div class="timer-display" id="task-timer">10:00</div>
+        <button onclick="startTimer('task', 600, 'step-post-kss')" id="start-task-btn">Start 10-Min Task</button>
+    </div>
+
+    <!-- Phase 8: Post-Task KSS -->
+    <div id="step-post-kss" class="section">
+        <h2>Current Sleepiness (Post-Task)</h2>
+        <p>Select the option that best reflects how you feel right now:</p>
+        <div id="kss-post-buttons">
+            <!-- Buttons generated via JS -->
+        </div>
+    </div>
+
+    <!-- Phase 9: Final Check -->
+    <div id="step-final" class="section">
+        <h2>Final Question</h2>
+        <p>Do you feel more tired now than when the session started?</p>
+        <button onclick="saveFinal('Yes')">Yes, more tired</button>
+        <button class="btn-outline" onclick="saveFinal('No')">No, about the same or less</button>
+    </div>
+
+    <!-- Phase 10: Done -->
+    <div id="step-done" class="section">
+        <h2>Session Complete!</h2>
+        <p>The data has been saved and the CSV protocol file is downloading to your computer.</p>
+        <br>
+        <div class="alert-box" style="text-align: left; background-color: #d1ecf1; border-left-color: #17a2b8; color: #0c5460;">
+            <strong>Operator Checklist:</strong><br>
+            1. Verify the camera video saved successfully.<br>
+            2. Verify the wearable data synced.<br>
+            3. Check the downloaded CSV file.
+        </div>
+        <br>
+        <button onclick="location.reload()">Start New Participant</button>
+    </div>
+
 </div>
 
 <script>
-(function(){
-  "use strict";
-
-  /* ================= Constants ================= */
-  var PHASES = [
-    { key:'onboarding', label:'Introduction' },
-    { key:'reg',      label:'Registration' },
-    { key:'sync',     label:'Sync & Check' },
-    { key:'baseline', label:'Baseline' },
-    { key:'kss1',     label:'KSS Pre' },
-    { key:'task',     label:'Task' },
-    { key:'kss2',     label:'KSS Post' },
-    { key:'export',   label:'Export' }
-  ];
-  function phaseIndexOf(key){
-    for(var i=0;i<PHASES.length;i++){ if(PHASES[i].key===key) return i; }
-    return -1;
-  }
-  function goToPhaseKey(key){ goToPhase(phaseIndexOf(key)); }
-
-  var KSS_LABELS = [
-    "Extremely alert",
-    "Very alert",
-    "Alert",
-    "Rather alert",
-    "Neither alert nor sleepy",
-    "Some signs of sleepiness",
-    "Sleepy, but no effort to keep awake",
-    "Sleepy, some effort to keep awake",
-    "Very sleepy, great effort to keep awake, fighting sleep"
-  ];
-
-  var DISTURBANCE_PRESETS = [
-    "Camera lost face", "Glasses reflecting", "Wearable slipped", "Signal interruption",
-    "Participant spoke", "Phone rang", "Participant left seat", "Software restart needed",
-    "Unusually strong movement", "Other technical issue"
-  ];
-
-  var ABORT_REASONS = [
-    "Participant requested to stop", "Participant felt nauseous", "Circulatory issue",
-    "Participant can no longer safely continue the task",
-    "Technical problem made measurement unusable", "Other"
-  ];
-
-  var DEFAULT_TASK_TEXT = "Continental drift describes the slow movement of Earth's landmasses over geological time. Roughly 250 million years ago, most of the planet's continents were joined into a single landmass known as Pangaea. Over tens of millions of years, tectonic forces gradually separated this supercontinent into the individual continents recognizable today. Evidence for this process includes matching rock formations on opposite shores of the Atlantic Ocean, similar fossil distributions across now-separated continents, and the way coastlines such as the eastern edge of South America and the western edge of Africa appear to fit together like puzzle pieces. Modern satellite measurements confirm that continents continue to drift today, typically moving only a few centimeters per year.";
-
-  var BASELINE_SECONDS = 2 * 60;
-  var TASK_SECONDS = 10 * 60;
-  var MID_KSS_AT_SECONDS = 5 * 60; // offset from task start
-  var PVT_SECONDS = 3 * 60;
-
-  /* ================= State ================= */
-  function freshState(){
-    return {
-      participantId: '', session: '',
-      onboarding: { isFirstSession: null, briefed:false, voluntaryExplained:false, consentDocumented:false,
-        idAssigned:false, wearableFit:false, cameraTested:false, kssPvtExplained:false, testRecording:false },
-      context: { sleepHours:'', wakeTime:'', lastCaffeine:'', noCaffeine:false, lunchTime:'', unusualStrain:'', wellbeing:'' },
-      abortCriteriaConfirmed: false,
-      checklist: { lighting:false, cameraAngle:false, screenDistance:false, room:false, volume:false, seating:false, wearableContact:false, cameraRecording:false, wearableRecording:false },
-      sync: { ts:null },
-      kssPre: null, kssMid: null, kssPost: null,
-      moreTired: null,
-      taskContent: DEFAULT_TASK_TEXT,
-      midKssShown:false, midKssPromptVisible:false,
-      pvt: { asked:false, ran:false, trials:[], endTime:null, summary:null },
-      disturbances: [],
-      validation: { cameraFile:false, wearableFile:false, timestamps:false, durationComplete:false, idCorrect:false, disturbancesDocumented:false },
-      phaseTimestamps: {},
-      aborted:false, abortReason:'', abortTime:null,
-      sessionStartMs: null,
-      exportCount: 0
+    // Global data object
+    let studyData = {
+        participant_id: "",
+        session_id: "",
+        date: "",
+        time_started: "",
+        sync_timestamp_ms: "",
+        sleep_hours: "",
+        wake_time: "",
+        caffeine_time: "",
+        well_being: "",
+        kss_pre: "",
+        kss_post: "",
+        feels_more_tired: ""
     };
-  }
-  var state = freshState();
-  var currentPhaseIndex = 0; // index into PHASES
 
-  var timers = { countdownId:null, stopwatchId:null, elapsedId:null, taskElapsedSec:0 };
-  var pvtHandles = { intervalId:null, stimulusTimeoutId:null, waitTimeoutId:null };
-
-  /* ================= Helpers ================= */
-  function $(sel, root){ return (root||document).querySelector(sel); }
-  function $all(sel, root){ return Array.prototype.slice.call((root||document).querySelectorAll(sel)); }
-  function pad(n){ return n < 10 ? '0'+n : ''+n; }
-  function fmtMMSS(totalSeconds){
-    totalSeconds = Math.max(0, Math.round(totalSeconds));
-    var m = Math.floor(totalSeconds/60), s = totalSeconds%60;
-    return pad(m)+':'+pad(s);
-  }
-  function fmtDate(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
-  function fmtHHmm(d){ return pad(d.getHours())+pad(d.getMinutes()); }
-  function nowIso(){ return new Date().toISOString(); }
-  function csvEscape(v){
-    if(v === null || v === undefined) return '';
-    var s = String(v);
-    if(/[",\n]/.test(s)){ return '"' + s.replace(/"/g,'""') + '"'; }
-    return s;
-  }
-  function stampPhase(key){ state.phaseTimestamps[key] = nowIso(); }
-
-  /* ================= Top bar / timeline rendering ================= */
-  function renderTimeline(){
-    var nav = $('#timeline');
-    nav.innerHTML = PHASES.map(function(p, i){
-      var cls = 'tl-seg';
-      if(i < currentPhaseIndex) cls += ' done';
-      else if(i === currentPhaseIndex) cls += ' current';
-      return '<div class="'+cls+'" data-seg="'+i+'">' +
-        '<div class="tl-bar"><div class="tl-bar-fill" id="tlfill-'+i+'"></div></div>' +
-        '<div class="tl-label"><span class="tl-num">'+pad(i+1)+'</span> · '+p.label+'</div>' +
-        '</div>';
-    }).join('');
-  }
-  function setSegFill(idx, pct){
-    var el = document.getElementById('tlfill-'+idx);
-    if(el) el.style.width = Math.max(0,Math.min(100,pct)) + '%';
-  }
-  function renderTopMeta(){
-    var meta = $('#sessionMeta');
-    meta.innerHTML = '<span>ID <b>'+(state.participantId || '—')+'</b></span>' +
-      '<span>Session <b>'+(state.session || '—')+'</b></span>';
-  }
-  function startElapsedClock(){
-    if(timers.elapsedId) clearInterval(timers.elapsedId);
-    state.sessionStartMs = state.sessionStartMs || Date.now();
-    timers.elapsedId = setInterval(function(){
-      var sec = Math.floor((Date.now() - state.sessionStartMs)/1000);
-      $('#elapsedDigits').textContent = fmtMMSS(sec);
-    }, 1000);
-  }
-
-  /* ================= Navigation ================= */
-  function goToPhase(idx){
-    clearAllTimers();
-    currentPhaseIndex = idx;
-    stampPhase(PHASES[idx].key);
-    renderTimeline();
-    renderTopMeta();
-    var renderers = [renderPhaseOnboarding, renderPhaseReg, renderPhaseSync, renderPhaseBaseline, renderPhaseKss1, renderPhaseTask, renderPhaseKss2, renderPhaseExport];
-    renderers[idx]();
-  }
-  function clearAllTimers(){
-    if(timers.countdownId){ clearInterval(timers.countdownId); timers.countdownId = null; }
-    pvtCancel();
-    hideMidKssBanner();
-  }
-
-  /* ================= Phase 0: Onboarding (one-time per participant) ================= */
-  function renderPhaseOnboarding(){
-    var ob = state.onboarding;
-    var items = [
-      ['briefed','Explained the study goal and procedure to the participant'],
-      ['voluntaryExplained','Explained that participation is voluntary and can be withdrawn at any time, without disadvantage'],
-      ['consentDocumented','Written/electronic consent and privacy information provided and documented separately from measurement data'],
-      ['idAssigned','Participant ID assigned (independent of name)'],
-      ['wearableFit','Wearable fitted correctly and tested'],
-      ['cameraTested','Camera position tested'],
-      ['kssPvtExplained','KSS (and reaction test, if used) explained to the participant'],
-      ['testRecording','Technical test recording completed']
+    const kssLabels = [
+        "1 - Extremely alert",
+        "2 - Very alert",
+        "3 - Alert",
+        "4 - Rather alert",
+        "5 - Neither alert nor sleepy",
+        "6 - Some signs of sleepiness",
+        "7 - Sleepy, but no effort to keep awake",
+        "8 - Sleepy, some effort to keep awake",
+        "9 - Very sleepy, great effort to keep awake, fighting sleep"
     ];
-    var showChecklist = ob.isFirstSession === 'Yes';
-    var allChecked = items.every(function(it){ return ob[it[0]]; });
-    var canContinue = ob.isFirstSession === 'No' || (ob.isFirstSession === 'Yes' && allChecked);
 
-    $('#stage').innerHTML =
-      '<div class="card">' +
-      '<h1 class="phase-title">One-Time Introduction</h1>' +
-      '<h2 class="phase-heading">Participant Onboarding</h2>' +
-      '<p class="lede">This runs once per participant, before their first session (M1, M2, or M3 — whichever comes first). Skip it for a participant\'s second and third sessions.</p>' +
-
-      '<div class="field"><label class="field-label">Is this the participant\'s first session in the study?</label>' +
-        '<div class="choice-row" id="f_isFirst">' +
-          '<button type="button" class="choice-btn'+(ob.isFirstSession==='Yes'?' selected':'')+'" data-val="Yes">Yes — run onboarding</button>' +
-          '<button type="button" class="choice-btn'+(ob.isFirstSession==='No'?' selected':'')+'" data-val="No">No — already onboarded</button>' +
-        '</div></div>' +
-
-      (showChecklist ?
-        ('<div style="margin-top:8px;">' +
-          items.map(function(it){
-            return '<div class="checklist-item"><input type="checkbox" id="ob_'+it[0]+'" '+(ob[it[0]]?'checked':'')+'>' +
-              '<label for="ob_'+it[0]+'">'+it[1]+'</label></div>';
-          }).join('') +
-        '</div>')
-        : '') +
-
-      '<div class="actions"><button class="btn btn-primary" id="toReg" '+(canContinue?'':'disabled')+'>Continue to Registration →</button></div>' +
-      '</div>';
-
-    $('#f_isFirst').addEventListener('click', function(e){
-      var b = e.target.closest('.choice-btn'); if(!b) return;
-      ob.isFirstSession = b.dataset.val;
-      renderPhaseOnboarding();
-    });
-    if(showChecklist){
-      items.forEach(function(it){
-        $('#ob_'+it[0]).addEventListener('change', function(e){
-          ob[it[0]] = e.target.checked;
-          renderPhaseOnboarding();
+    // Initialize KSS buttons
+    window.onload = () => {
+        const preDiv = document.getElementById('kss-pre-buttons');
+        const postDiv = document.getElementById('kss-post-buttons');
+        
+        kssLabels.forEach((label, index) => {
+            let val = index + 1;
+            preDiv.innerHTML += `<button class="kss-btn" onclick="saveKSS('pre', ${val})">${label}</button>`;
+            postDiv.innerHTML += `<button class="kss-btn" onclick="saveKSS('post', ${val})">${label}</button>`;
         });
-      });
-    }
-    $('#toReg').addEventListener('click', function(){ goToPhaseKey('reg'); });
-  }
-
-  /* ================= Phase 1: Registration ================= */
-  function renderPhaseReg(){
-    var c = state.context;
-    $('#stage').innerHTML =
-      '<div class="card">' +
-      '<h1 class="phase-title">Phase 1 · Minutes 0–3</h1>' +
-      '<h2 class="phase-heading">Registration &amp; Context Survey</h2>' +
-      '<p class="lede">Only the participant ID is stored here — never a name. Keep the ID-to-name mapping in a separate, offline list.</p>' +
-
-      '<div class="row2">' +
-        '<div class="field"><label class="field-label">Participant ID</label>' +
-          '<input type="text" id="f_pid" placeholder="e.g. P01" value="'+state.participantId+'"></div>' +
-        '<div class="field"><label class="field-label">Measurement Session</label>' +
-          '<select id="f_session">' +
-            '<option value="">Select…</option>' +
-            '<option value="M1"'+(state.session==='M1'?' selected':'')+'>M1 — Morning</option>' +
-            '<option value="M2"'+(state.session==='M2'?' selected':'')+'>M2 — Post-lunch</option>' +
-            '<option value="M3"'+(state.session==='M3'?' selected':'')+'>M3 — Evening</option>' +
-          '</select></div>' +
-      '</div>' +
-
-      '<div class="row2">' +
-        '<div class="field"><label class="field-label">Sleep duration last night (hours)</label>' +
-          '<input type="number" id="f_sleep" min="0" max="24" step="0.5" value="'+c.sleepHours+'"></div>' +
-        '<div class="field"><label class="field-label">Wake-up time today</label>' +
-          '<input type="time" id="f_wake" value="'+c.wakeTime+'"></div>' +
-      '</div>' +
-
-      '<div class="row2">' +
-        '<div class="field"><label class="field-label">Time of last caffeine intake</label>' +
-          '<input type="time" id="f_caffeine" value="'+c.lastCaffeine+'" '+(c.noCaffeine?'disabled':'')+'>' +
-          '<label style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--text-dim);">' +
-          '<input type="checkbox" id="f_noCaffeine" '+(c.noCaffeine?'checked':'')+' style="width:14px;height:14px;accent-color:var(--amber);"> No caffeine today</label>' +
-        '</div>' +
-        '<div class="field"><label class="field-label">Time of lunch'+(state.session==='M2' ? ' <span style="color:var(--amber)">(required for M2)</span>' : ' (optional)')+'</label>' +
-          '<input type="time" id="f_lunch" value="'+c.lunchTime+'"></div>' +
-      '</div>' +
-
-      '<div class="field"><label class="field-label">Unusual physical strain today?</label>' +
-        '<div class="choice-row" id="f_strain">' +
-          '<button type="button" class="choice-btn'+(c.unusualStrain==='Yes'?' selected':'')+'" data-val="Yes">Yes</button>' +
-          '<button type="button" class="choice-btn'+(c.unusualStrain==='No'?' selected':'')+'" data-val="No">No</button>' +
-        '</div></div>' +
-
-      '<div class="field"><label class="field-label">Subjective well-being (1 = poor, 5 = excellent)</label>' +
-        '<div class="choice-row" id="f_wellbeing">' +
-          [1,2,3,4,5].map(function(n){ return '<button type="button" class="choice-btn'+(String(c.wellbeing)===String(n)?' selected':'')+'" data-val="'+n+'">'+n+'</button>'; }).join('') +
-        '</div></div>' +
-
-      '<div class="checklist-item" style="margin-top:10px;border-top:1px solid var(--border);padding-top:16px;">' +
-        '<input type="checkbox" id="f_abortOk" '+(state.abortCriteriaConfirmed?'checked':'')+'>' +
-        '<label for="f_abortOk">I confirm no abort criteria are met (illness, discomfort, technical issue) and the participant consents to proceed.</label>' +
-      '</div>' +
-
-      '<div class="actions"><button class="btn btn-primary" id="toPhase2" disabled>Continue to Sync &amp; Check →</button></div>' +
-      '</div>';
-
-    $('#f_pid').addEventListener('input', function(e){ state.participantId = e.target.value.trim(); renderTopMeta(); validateReg(); });
-    $('#f_session').addEventListener('change', function(e){ state.session = e.target.value; renderTopMeta(); renderPhaseReg(); });
-    $('#f_sleep').addEventListener('input', function(e){ c.sleepHours = e.target.value; validateReg(); });
-    $('#f_wake').addEventListener('input', function(e){ c.wakeTime = e.target.value; validateReg(); });
-    $('#f_caffeine').addEventListener('input', function(e){ c.lastCaffeine = e.target.value; validateReg(); });
-    $('#f_noCaffeine').addEventListener('change', function(e){ c.noCaffeine = e.target.checked; if(c.noCaffeine) c.lastCaffeine=''; renderPhaseReg(); });
-    $('#f_lunch').addEventListener('input', function(e){ c.lunchTime = e.target.value; validateReg(); });
-    $('#f_strain').addEventListener('click', function(e){
-      var b = e.target.closest('.choice-btn'); if(!b) return;
-      c.unusualStrain = b.dataset.val; renderPhaseReg();
-    });
-    $('#f_wellbeing').addEventListener('click', function(e){
-      var b = e.target.closest('.choice-btn'); if(!b) return;
-      c.wellbeing = b.dataset.val; renderPhaseReg();
-    });
-    $('#f_abortOk').addEventListener('change', function(e){ state.abortCriteriaConfirmed = e.target.checked; validateReg(); });
-    $('#toPhase2').addEventListener('click', function(){
-      startElapsedClock();
-      goToPhase(1);
-    });
-    validateReg();
-  }
-  function validateReg(){
-    var c = state.context;
-    var ok = state.participantId.length > 0 && state.session.length > 0 &&
-      c.sleepHours !== '' && c.wakeTime !== '' && c.unusualStrain !== '' && c.wellbeing !== '' &&
-      state.abortCriteriaConfirmed;
-    if(state.session === 'M2' && !c.lunchTime) ok = false;
-    var btn = $('#toPhase2');
-    if(btn) btn.disabled = !ok;
-  }
-
-  /* ================= Phase 2: Sync & Tech Check ================= */
-  function renderPhaseSync(){
-    var cl = state.checklist;
-    var items = [
-      ['lighting','Lighting checked (even, no strong backlight)'],
-      ['cameraAngle','Camera angle checked'],
-      ['screenDistance','Screen distance checked'],
-      ['seating','Seating position checked'],
-      ['wearableContact','Wearable skin contact / signal quality checked'],
-      ['cameraRecording','Camera recording software started'],
-      ['wearableRecording','Wearable recording software started']
-    ];
-    $('#stage').innerHTML =
-      '<div class="card">' +
-      '<h1 class="phase-title">Phase 2 · Minutes 3–6</h1>' +
-      '<h2 class="phase-heading">Sync &amp; Tech Check</h2>' +
-      items.map(function(it){
-        return '<div class="checklist-item"><input type="checkbox" id="cl_'+it[0]+'" '+(cl[it[0]]?'checked':'')+'>' +
-          '<label for="cl_'+it[0]+'">'+it[1]+'</label></div>';
-      }).join('') +
-      '<div class="sync-btn-wrap">' +
-        '<button class="sync-btn" id="syncBtn" disabled>SYNC</button>' +
-      '</div>' +
-      '<p class="hint" style="text-align:center;">Clicking SYNC flashes the screen (for the camera) and records the exact timestamp (for the wearable). Do this once both systems are recording.</p>' +
-      (state.sync.ts ? renderSyncReadout() : '') +
-      '<div class="actions"><button class="btn btn-primary" id="toPhase3" disabled>Continue to Baseline →</button></div>' +
-      '</div>';
-
-    items.forEach(function(it){
-      $('#cl_'+it[0]).addEventListener('change', function(e){
-        cl[it[0]] = e.target.checked;
-        validateSync();
-      });
-    });
-    $('#syncBtn').addEventListener('click', function(){
-      var overlay = $('#flashOverlay');
-      overlay.classList.add('on');
-      state.sync.ts = Date.now();
-      setTimeout(function(){ overlay.classList.remove('on'); }, 160);
-      renderPhaseSync();
-    });
-    $('#toPhase3').addEventListener('click', function(){ goToPhase(2); });
-    validateSync();
-  }
-  function renderSyncReadout(){
-    var d = new Date(state.sync.ts);
-    return '<div class="sync-readout">' +
-      '<div class="hint">Sync timestamp recorded</div>' +
-      '<div class="big">'+state.sync.ts+' <span style="color:var(--text-dim);font-size:14px;">(unix ms)</span></div>' +
-      '<div class="hint">'+d.toLocaleString()+'</div>' +
-      '</div>';
-  }
-  function validateSync(){
-    var cl = state.checklist;
-    var allChecked = Object.keys(cl).every(function(k){ return cl[k]; });
-    var syncBtn = $('#syncBtn');
-    if(syncBtn) syncBtn.disabled = !allChecked;
-    var next = $('#toPhase3');
-    if(next) next.disabled = !(allChecked && state.sync.ts);
-  }
-
-  /* ================= Phase 3: Resting Baseline ================= */
-  function renderPhaseBaseline(){
-    $('#stage').innerHTML =
-      '<div class="card">' +
-      '<h1 class="phase-title">Phase 3 · Minutes 6–8</h1>' +
-      '<h2 class="phase-heading">Resting Baseline</h2>' +
-      '<div class="instructions-block">Please sit quietly for two minutes.<br>Breathe normally, do not speak, keep your arms still, and look straight ahead.</div>' +
-      '<div class="timer-wrap"><div class="timer-digits" id="baseTimer">'+fmtMMSS(BASELINE_SECONDS)+'</div>' +
-      '<div class="timer-caption">Baseline countdown</div></div>' +
-      '<div class="actions"><button class="btn btn-primary" id="toPhase4" disabled>Continue to Pre-Task KSS →</button></div>' +
-      '</div>';
-    $('#toPhase4').addEventListener('click', function(){ goToPhase(3); });
-    runCountdown(BASELINE_SECONDS, function(remain, total){
-      $('#baseTimer').textContent = fmtMMSS(remain);
-      setSegFill(currentPhaseIndex, 100 * (total-remain)/total);
-    }, function(){
-      var btn = $('#toPhase4'); if(btn) btn.disabled = false;
-    });
-  }
-
-  /* ================= Phase 4: Pre-task KSS ================= */
-  function renderPhaseKss1(){
-    $('#stage').innerHTML =
-      '<div class="card">' +
-      '<h1 class="phase-title">Phase 4 · Minute 8</h1>' +
-      '<h2 class="phase-heading">Karolinska Sleepiness Scale — Pre-Task</h2>' +
-      '<p class="lede">Ask the participant which statement best matches how they feel right now.</p>' +
-      '<div class="kss-list" id="kssList">' + kssOptionsHtml(state.kssPre ? state.kssPre.value : null) + '</div>' +
-      '<div class="actions"><button class="btn btn-primary" id="toPhase5" disabled>Continue to Task →</button></div>' +
-      '</div>';
-    $('#kssList').addEventListener('click', function(e){
-      var b = e.target.closest('.kss-opt'); if(!b) return;
-      var v = parseInt(b.dataset.val, 10);
-      state.kssPre = { value: v, label: KSS_LABELS[v-1], timestamp: nowIso() };
-      renderPhaseKss1();
-    });
-    $('#toPhase5').disabled = !state.kssPre;
-    if(state.kssPre){ $('#toPhase5').disabled = false; }
-    $('#toPhase5').addEventListener('click', function(){ goToPhase(4); });
-  }
-  function kssOptionsHtml(selected){
-    return KSS_LABELS.map(function(lbl, i){
-      var v = i+1;
-      var cls = 'kss-opt' + (selected===v ? ' selected' : '');
-      return '<div class="'+cls+'" data-val="'+v+'"><span class="num">'+v+'</span><span class="lbl">'+lbl+'</span></div>';
-    }).join('');
-  }
-
-  /* ================= Phase 5: Standardized Task ================= */
-  function renderPhaseTask(){
-    $('#stage').innerHTML =
-      '<div class="card card-wide">' +
-      '<h1 class="phase-title">Phase 5 · Minutes 8–18</h1>' +
-      '<h2 class="phase-heading">Standardized Task</h2>' +
-      '<div class="task-banner">' +
-        '<span class="task-rule">No talking</span>' +
-        '<span class="task-rule">No smartphone use</span>' +
-        '<span class="task-rule">No secondary tasks</span>' +
-      '</div>' +
-      '<div class="timer-wrap"><div class="timer-digits" id="taskTimer">'+fmtMMSS(TASK_SECONDS)+'</div>' +
-      '<div class="timer-caption">Task countdown</div></div>' +
-      '<div class="placeholder-flag">Placeholder task content — replace with your official standardized task material</div>' +
-      '<div class="task-content" id="taskContentBox">'+escapeHtml(state.taskContent)+'</div>' +
-      '<details class="task-edit"><summary>Edit task content (operator)</summary>' +
-        '<div class="field" style="margin-top:10px;"><textarea id="taskEdit">'+escapeHtml(state.taskContent)+'</textarea>' +
-        '<div class="actions"><button class="btn btn-ghost" id="taskEditSave">Save content</button></div></div>' +
-      '</details>' +
-      '<div class="actions"><button class="btn btn-primary" id="toPhase6" disabled>Continue to Post-Task KSS →</button></div>' +
-      '</div>';
-
-    $('#taskEditSave').addEventListener('click', function(){
-      state.taskContent = $('#taskEdit').value;
-      $('#taskContentBox').textContent = state.taskContent;
-    });
-    $('#toPhase6').addEventListener('click', function(){ hideMidKssBanner(); goToPhase(5); });
-
-    state.midKssShown = false;
-    runCountdown(TASK_SECONDS, function(remain, total){
-      $('#taskTimer').textContent = fmtMMSS(remain);
-      setSegFill(currentPhaseIndex, 100 * (total-remain)/total);
-      var elapsed = total - remain;
-      if(!state.midKssShown && elapsed >= MID_KSS_AT_SECONDS){
-        state.midKssShown = true;
-        showMidKssBanner();
-      }
-    }, function(){
-      var btn = $('#toPhase6'); if(btn) btn.disabled = false;
-    });
-  }
-  function showMidKssBanner(){
-    var stage = $('#stage');
-    var banner = document.createElement('div');
-    banner.className = 'mid-kss-banner';
-    banner.id = 'midKssBanner';
-    banner.innerHTML = '<span style="font-size:13px;">Optional: record mid-task KSS?</span>' +
-      '<button class="btn btn-primary" id="midKssOpen" style="padding:8px 14px;">Record</button>' +
-      '<button class="btn btn-ghost" id="midKssDismiss" style="padding:8px 14px;">Dismiss</button>';
-    document.body.appendChild(banner);
-    $('#midKssOpen').addEventListener('click', openMidKssModal);
-    $('#midKssDismiss').addEventListener('click', hideMidKssBanner);
-  }
-  function hideMidKssBanner(){
-    var b = document.getElementById('midKssBanner');
-    if(b) b.remove();
-  }
-  function openMidKssModal(){
-    var modal = $('#midKssModal');
-    $('#midKssList').innerHTML = kssOptionsHtml(state.kssMid ? state.kssMid.value : null);
-    modal.classList.remove('hidden');
-    $('#midKssList').onclick = function(e){
-      var b = e.target.closest('.kss-opt'); if(!b) return;
-      var v = parseInt(b.dataset.val,10);
-      state.kssMid = { value:v, label:KSS_LABELS[v-1], timestamp: nowIso() };
-      modal.classList.add('hidden');
-      hideMidKssBanner();
     };
-    $('#midKssSkipBtn').onclick = function(){ modal.classList.add('hidden'); hideMidKssBanner(); };
-  }
-  function escapeHtml(s){
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
 
-  /* ================= Phase 6: Post-task KSS + subjective + optional PVT ================= */
-  function renderPhaseKss2(){
-    if(state.pvt.asked && state.pvt.ranAttempted){
-      renderPvtScreen();
-      return;
+    function nextStep(currentId, nextId) {
+        document.getElementById(`step-${currentId}`).classList.remove('active');
+        document.getElementById(`step-${nextId}`).classList.add('active');
     }
-    $('#stage').innerHTML =
-      '<div class="card">' +
-      '<h1 class="phase-title">Phase 6 · Minute 18</h1>' +
-      '<h2 class="phase-heading">Karolinska Sleepiness Scale — Post-Task</h2>' +
-      '<div class="kss-list" id="kssList2">' + kssOptionsHtml(state.kssPost ? state.kssPost.value : null) + '</div>' +
 
-      '<div class="field" style="margin-top:6px;"><label class="field-label">Do you feel more tired now than at the beginning of the task?</label>' +
-        '<div class="choice-row" id="f_moreTired">' +
-          '<button type="button" class="choice-btn'+(state.moreTired==='Yes'?' selected':'')+'" data-val="Yes">Yes</button>' +
-          '<button type="button" class="choice-btn'+(state.moreTired==='No'?' selected':'')+'" data-val="No">No</button>' +
-        '</div></div>' +
-
-      '<div class="field" style="border-top:1px solid var(--border);padding-top:18px;"><label class="field-label">Run optional 3-minute PVT (Psychomotor Vigilance Test)?</label>' +
-        '<div class="choice-row" id="f_pvtAsk">' +
-          '<button type="button" class="choice-btn" data-val="yes"'+(!(state.kssPost&&state.moreTired)?' disabled':'')+'>Yes, run PVT</button>' +
-          '<button type="button" class="choice-btn" data-val="no"'+(!(state.kssPost&&state.moreTired)?' disabled':'')+'>No, skip PVT</button>' +
-        '</div>' +
-        (!(state.kssPost&&state.moreTired) ? '<div class="hint">Answer the KSS and the question above first.</div>' : '') +
-        '</div>' +
-
-      '<div class="actions"><button class="btn btn-primary" id="toPhase7" disabled>Continue →</button></div>' +
-      '</div>';
-
-    $('#kssList2').addEventListener('click', function(e){
-      var b = e.target.closest('.kss-opt'); if(!b) return;
-      var v = parseInt(b.dataset.val, 10);
-      state.kssPost = { value: v, label: KSS_LABELS[v-1], timestamp: nowIso() };
-      renderPhaseKss2();
-    });
-    $('#f_moreTired').addEventListener('click', function(e){
-      var b = e.target.closest('.choice-btn'); if(!b) return;
-      state.moreTired = b.dataset.val; renderPhaseKss2();
-    });
-    $('#f_pvtAsk').addEventListener('click', function(e){
-      var b = e.target.closest('.choice-btn'); if(!b) return;
-      state.pvt.asked = true;
-      if(b.dataset.val === 'yes'){
-        state.pvt.ranAttempted = true;
-        renderPhaseKss2();
-        pvtStart();
-      } else {
-        state.pvt.ranAttempted = false;
-        state.pvt.ran = false;
-        state.pvt.summary = { ran:false };
-        goToPhase(6);
-      }
-    });
-    $('#toPhase7').addEventListener('click', function(){ goToPhase(6); });
-    validateKss2();
-  }
-  function validateKss2(){
-    var ok = !!state.kssPost && !!state.moreTired && (state.pvt.asked || false);
-    var btn = $('#toPhase7');
-    if(btn) btn.disabled = !ok;
-  }
-
-  /* ---- PVT ---- */
-  function renderPvtScreen(){
-    $('#stage').innerHTML =
-      '<div class="card">' +
-      '<h1 class="phase-title">Phase 6 · Optional</h1>' +
-      '<h2 class="phase-heading">Psychomotor Vigilance Test</h2>' +
-      '<p class="lede">Press SPACE or tap the box as soon as it turns red. Stay looking at the box.</p>' +
-      '<div class="pvt-stage">' +
-        '<div class="pvt-box" id="pvtBox">Wait…</div>' +
-        '<div class="timer-wrap" style="padding-top:18px;"><div class="timer-digits" id="pvtTimer" style="font-size:clamp(36px,6vw,56px);">'+fmtMMSS(PVT_SECONDS)+'</div>' +
-        '<div class="timer-caption">Time remaining</div></div>' +
-        '<div class="pvt-stats"><div>Trials<br><b id="pvtTrialCount">0</b></div></div>' +
-      '</div>' +
-      '<div id="pvtSummaryWrap"></div>' +
-      '</div>';
-    $('#pvtBox').addEventListener('click', pvtRespond);
-  }
-  function pvtStart(){
-    state.pvt.trials = [];
-    state.pvt.endTime = Date.now() + PVT_SECONDS*1000;
-    document.addEventListener('keydown', pvtKeyHandler);
-    pvtHandles.intervalId = setInterval(function(){
-      var remain = Math.max(0, state.pvt.endTime - Date.now());
-      var timerEl = document.getElementById('pvtTimer');
-      if(timerEl) timerEl.textContent = fmtMMSS(remain/1000);
-      if(remain <= 0){ pvtFinish(); }
-    }, 250);
-    pvtScheduleNext();
-  }
-  function pvtKeyHandler(e){
-    if(e.code === 'Space'){ e.preventDefault(); pvtRespond(); }
-  }
-  function pvtScheduleNext(){
-    var remain = state.pvt.endTime - Date.now();
-    if(remain < 2500) return;
-    var delay = Math.min(2000 + Math.random()*6000, remain - 500);
-    pvtHandles.stimulusTimeoutId = setTimeout(pvtShowStimulus, delay);
-  }
-  function pvtShowStimulus(){
-    var box = document.getElementById('pvtBox');
-    state.pvt.currentOnset = Date.now();
-    state.pvt.awaiting = true;
-    if(box){ box.classList.add('go'); box.textContent = 'GO'; }
-    pvtHandles.waitTimeoutId = setTimeout(function(){
-      if(state.pvt.awaiting){
-        pvtRecordTrial(10000, 'timeout');
-        resetPvtBox();
-        state.pvt.awaiting = false;
-        pvtScheduleNext();
-      }
-    }, 10000);
-  }
-  function pvtRespond(){
-    if(!state.pvt.awaiting) return;
-    var rt = Date.now() - state.pvt.currentOnset;
-    clearTimeout(pvtHandles.waitTimeoutId);
-    var type = rt < 100 ? 'false_start' : (rt > 500 ? 'lapse' : 'normal');
-    pvtRecordTrial(rt, type);
-    resetPvtBox();
-    state.pvt.awaiting = false;
-    pvtScheduleNext();
-  }
-  function resetPvtBox(){
-    var box = document.getElementById('pvtBox');
-    if(box){ box.classList.remove('go'); box.textContent = 'Wait…'; }
-  }
-  function pvtRecordTrial(rt, type){
-    state.pvt.trials.push({ rtMs: rt, type: type, timestamp: nowIso() });
-    var el = document.getElementById('pvtTrialCount');
-    if(el) el.textContent = state.pvt.trials.length;
-  }
-  function pvtCancel(){
-    clearInterval(pvtHandles.intervalId);
-    clearTimeout(pvtHandles.stimulusTimeoutId);
-    clearTimeout(pvtHandles.waitTimeoutId);
-    document.removeEventListener('keydown', pvtKeyHandler);
-    pvtHandles.intervalId = null; pvtHandles.stimulusTimeoutId = null; pvtHandles.waitTimeoutId = null;
-    if(state.pvt) state.pvt.awaiting = false;
-  }
-  function pvtFinish(){
-    pvtCancel();
-    state.pvt.awaiting = false;
-    state.pvt.ran = true;
-    var trials = state.pvt.trials;
-    var validRts = trials.filter(function(t){ return t.type==='normal' || t.type==='lapse'; }).map(function(t){ return t.rtMs; });
-    var mean = validRts.length ? Math.round(validRts.reduce(function(a,b){return a+b;},0)/validRts.length) : null;
-    state.pvt.summary = {
-      ran: true,
-      trialCount: trials.length,
-      meanRtMs: mean,
-      lapses: trials.filter(function(t){ return t.type==='lapse' || t.type==='timeout'; }).length,
-      falseStarts: trials.filter(function(t){ return t.type==='false_start'; }).length
-    };
-    var wrap = document.getElementById('pvtSummaryWrap');
-    if(wrap){
-      wrap.innerHTML = '<div class="pvt-stats" style="margin-top:24px;">' +
-        '<div>Mean RT<br><b>'+(state.pvt.summary.meanRtMs!==null ? state.pvt.summary.meanRtMs+' ms' : '—')+'</b></div>' +
-        '<div>Lapses<br><b>'+state.pvt.summary.lapses+'</b></div>' +
-        '<div>False starts<br><b>'+state.pvt.summary.falseStarts+'</b></div>' +
-        '</div>' +
-        '<div class="actions"><button class="btn btn-primary" id="pvtContinue">Continue →</button></div>';
-      $('#pvtContinue').addEventListener('click', function(){ goToPhase(6); });
+    function validateOnboarding() {
+        const pid = document.getElementById('participant-id').value.trim();
+        const consent = document.getElementById('consent').checked;
+        
+        if(!pid || !consent) {
+            alert("Please enter a Participant ID and check the consent box to proceed.");
+            return;
+        }
+        
+        studyData.participant_id = pid;
+        
+        // Set Date/Time
+        let now = new Date();
+        studyData.date = now.toISOString().split('T')[0];
+        studyData.time_started = now.toTimeString().split(' ')[0].substring(0,5).replace(':', '');
+        
+        nextStep('onboarding', 'context');
     }
-  }
 
-  /* ================= Phase 7: Export ================= */
-  function renderPhaseExport(){
-    if(state.exportCount === 0){ downloadCsv(); }
-    var s = state;
-    $('#stage').innerHTML =
-      '<div class="card card-wide">' +
-      '<h1 class="phase-title">Phase 7 · Minutes 20–25</h1>' +
-      '<h2 class="phase-heading">Data Control &amp; Export</h2>' +
-      (s.aborted ? '<div class="abort-flag">Session aborted — reason: '+escapeHtml(s.abortReason)+'. Partial data has been exported.</div>' : '') +
-      (s.session === 'M3' && !s.aborted ? '<div class="rest-flag">M3 (evening) session complete — if the participant is severely fatigued, have them rest before driving home.</div>' : '') +
-      '<div class="export-confirm">CSV exported as: '+csvFilename()+'</div>' +
+    function saveContextAndProceed() {
+        studyData.session_id = document.getElementById('session-id').value;
+        studyData.sleep_hours = document.getElementById('sleep-hours').value;
+        studyData.wake_time = document.getElementById('wake-time').value;
+        studyData.caffeine_time = document.getElementById('caffeine-time').value;
+        studyData.well_being = document.getElementById('well-being').value;
+        nextStep('context', 'sync');
+    }
 
-      '<div class="summary-grid">' +
-        summaryItem('Participant', s.participantId) +
-        summaryItem('Session', s.session) +
-        summaryItem('Sync timestamp (unix ms)', s.sync.ts) +
-        summaryItem('KSS pre-task', s.kssPre ? s.kssPre.value+' — '+s.kssPre.label : '—') +
-        summaryItem('KSS mid-task', s.kssMid ? s.kssMid.value+' — '+s.kssMid.label : 'not taken') +
-        summaryItem('KSS post-task', s.kssPost ? s.kssPost.value+' — '+s.kssPost.label : '—') +
-        summaryItem('More tired than start?', s.moreTired || '—') +
-        summaryItem('PVT', s.pvt.summary && s.pvt.summary.ran ? s.pvt.summary.trialCount+' trials, mean RT '+s.pvt.summary.meanRtMs+' ms, '+s.pvt.summary.lapses+' lapses' : 'not run') +
-      '</div>' +
+    function triggerSync() {
+        studyData.sync_timestamp_ms = Date.now();
+        
+        // Flash screen for camera
+        document.body.style.backgroundColor = "var(--accent-red)";
+        setTimeout(() => {
+            document.body.style.backgroundColor = "var(--accent-green)";
+            setTimeout(() => {
+                document.body.style.backgroundColor = ""; // Back to normal
+                nextStep('sync', 'baseline');
+            }, 500);
+        }, 500);
+    }
 
-      '<h1 class="phase-title" style="margin-top:6px;">Operator Validation</h1>' +
-      '<div class="checklist-item"><input type="checkbox" id="v1"><label for="v1">Camera file exists and timestamp is plausible</label></div>' +
-      '<div class="checklist-item"><input type="checkbox" id="v2"><label for="v2">Wearable file exists and timestamp is plausible</label></div>' +
-      '<div class="checklist-item"><input type="checkbox" id="v3"><label for="v3">Portal CSV exists and data is complete</label></div>' +
+    let timerInterval;
+    function startTimer(type, seconds, nextPhase) {
+        document.getElementById(`start-${type}-btn`).style.display = 'none';
+        let display = document.getElementById(`${type}-timer`);
+        
+        timerInterval = setInterval(() => {
+            let m = Math.floor(seconds / 60);
+            let s = seconds % 60;
+            display.innerText = (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+            
+            if (seconds <= 0) {
+                clearInterval(timerInterval);
+                nextStep(type, nextPhase.replace('step-', ''));
+            }
+            seconds--;
+        }, 1000);
+    }
 
-      '<h1 class="phase-title" style="margin-top:22px;">Disturbance Log</h1>' +
-      '<p class="hint">Do not hastily discard disturbed sessions — they are valuable for testing real-world robustness.</p>' +
-      '<div class="tag-row" id="tagRow">' +
-        DISTURBANCE_PRESETS.map(function(t){ return '<button type="button" class="tag-btn" data-t="'+escapeHtml(t)+'">+ '+t+'</button>'; }).join('') +
-      '</div>' +
-      '<div class="row2">' +
-        '<input type="text" id="noteInput" placeholder="Additional note…">' +
-        '<button class="btn btn-ghost" id="noteAddBtn">Add note</button>' +
-      '</div>' +
-      '<ul class="log-list" id="logList" style="margin-top:14px;">' +
-        (s.disturbances.length ? s.disturbances.map(function(d){ return '<li>'+escapeHtml(d.time)+' — '+escapeHtml(d.note)+'</li>'; }).join('') : '<li style="border:none;color:var(--text-faint);">No disturbances logged.</li>') +
-      '</ul>' +
+    function saveKSS(phase, value) {
+        if(phase === 'pre') {
+            studyData.kss_pre = value;
+            nextStep('pre-kss', 'task');
+        } else {
+            studyData.kss_post = value;
+            nextStep('post-kss', 'final');
+        }
+    }
 
-      '<div class="actions split">' +
-        '<button class="btn btn-ghost" id="reExportBtn">Re-export updated CSV</button>' +
-        '<button class="btn btn-primary" id="newSessionBtn">Start New Session →</button>' +
-      '</div>' +
-      '</div>';
+    function saveFinal(answer) {
+        studyData.feels_more_tired = answer;
+        nextStep('final', 'done');
+        downloadCSV();
+    }
 
-    $('#tagRow').addEventListener('click', function(e){
-      var b = e.target.closest('.tag-btn'); if(!b) return;
-      addDisturbance(b.dataset.t);
-    });
-    $('#noteAddBtn').addEventListener('click', function(){
-      var v = $('#noteInput').value.trim();
-      if(v){ addDisturbance(v); $('#noteInput').value=''; }
-    });
-    $('#reExportBtn').addEventListener('click', downloadCsv);
-    $('#newSessionBtn').addEventListener('click', function(){
-      if(confirm('Start a new session? This clears the current form for the next participant/session.')){
-        if(timers.elapsedId){ clearInterval(timers.elapsedId); timers.elapsedId = null; }
-        state = freshState();
-        var elapsedEl = document.getElementById('elapsedDigits');
-        if(elapsedEl) elapsedEl.textContent = '00:00';
-        goToPhase(0);
-      }
-    });
-  }
-  function summaryItem(k,v){
-    return '<div class="summary-item"><div class="k">'+escapeHtml(k)+'</div><div class="v">'+escapeHtml(v===undefined||v===null||v===''?'—':v)+'</div></div>';
-  }
-  function addDisturbance(note){
-    state.disturbances.push({ time: new Date().toLocaleTimeString(), note: note });
-    renderPhaseExport();
-  }
-
-  /* ================= Countdown helper ================= */
-  function runCountdown(totalSeconds, onTick, onComplete){
-    var remaining = totalSeconds;
-    onTick(remaining, totalSeconds);
-    timers.countdownId = setInterval(function(){
-      remaining -= 1;
-      if(remaining <= 0){
-        clearInterval(timers.countdownId);
-        onTick(0, totalSeconds);
-        onComplete();
-      } else {
-        onTick(remaining, totalSeconds);
-      }
-    }, 1000);
-  }
-
-  /* ================= CSV ================= */
-  function csvFilename(){
-    var d = new Date();
-    return (state.participantId || 'PXX') + '_' + (state.session || 'MX') + '_' + fmtDate(d) + '_' + fmtHHmm(d) + '_PROTOCOL.csv';
-  }
-  function buildCsv(){
-    var s = state;
-    var headers = [
-      'participant_id','session','export_date','export_time',
-      'sync_timestamp_unix_ms','sync_timestamp_iso',
-      'sleep_hours','wake_time','last_caffeine_time','no_caffeine_today','lunch_time','unusual_strain','wellbeing_1_5',
-      'kss_pre_value','kss_pre_label','kss_pre_timestamp',
-      'kss_mid_value','kss_mid_label','kss_mid_timestamp',
-      'kss_post_value','kss_post_label','kss_post_timestamp',
-      'more_tired_than_start',
-      'pvt_run','pvt_trial_count','pvt_mean_rt_ms','pvt_lapses','pvt_false_starts',
-      'aborted','abort_reason','abort_timestamp',
-      'disturbance_log','phase_timestamps'
-    ];
-    var d = new Date();
-    var row = [
-      s.participantId, s.session, fmtDate(d), fmtHHmm(d),
-      s.sync.ts || '', s.sync.ts ? new Date(s.sync.ts).toISOString() : '',
-      s.context.sleepHours, s.context.wakeTime, s.context.lastCaffeine, s.context.noCaffeine ? 'yes':'no', s.context.lunchTime, s.context.unusualStrain, s.context.wellbeing,
-      s.kssPre ? s.kssPre.value : '', s.kssPre ? s.kssPre.label : '', s.kssPre ? s.kssPre.timestamp : '',
-      s.kssMid ? s.kssMid.value : '', s.kssMid ? s.kssMid.label : '', s.kssMid ? s.kssMid.timestamp : '',
-      s.kssPost ? s.kssPost.value : '', s.kssPost ? s.kssPost.label : '', s.kssPost ? s.kssPost.timestamp : '',
-      s.moreTired || '',
-      s.pvt.summary && s.pvt.summary.ran ? 'yes' : 'no',
-      s.pvt.summary && s.pvt.summary.ran ? s.pvt.summary.trialCount : '',
-      s.pvt.summary && s.pvt.summary.ran ? s.pvt.summary.meanRtMs : '',
-      s.pvt.summary && s.pvt.summary.ran ? s.pvt.summary.lapses : '',
-      s.pvt.summary && s.pvt.summary.ran ? s.pvt.summary.falseStarts : '',
-      s.aborted ? 'yes' : 'no', s.abortReason || '', s.abortTime || '',
-      s.disturbances.map(function(dd){ return dd.time+': '+dd.note; }).join('; '),
-      Object.keys(s.phaseTimestamps).map(function(k){ return k+':'+s.phaseTimestamps[k]; }).join('; ')
-    ];
-    return headers.join(',') + '\n' + row.map(csvEscape).join(',') + '\n';
-  }
-  function downloadCsv(){
-    var csv = buildCsv();
-    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url; a.download = csvFilename();
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
-    state.exportCount += 1;
-  }
-
-  /* ================= Abort flow ================= */
-  function initAbortModal(){
-    var list = $('#abortReasonList');
-    list.innerHTML = ABORT_REASONS.map(function(r){ return '<button type="button" class="btn btn-danger" data-r="'+escapeHtml(r)+'">'+r+'</button>'; }).join('');
-    list.addEventListener('click', function(e){
-      var b = e.target.closest('button'); if(!b) return;
-      state.aborted = true;
-      state.abortReason = b.dataset.r;
-      state.abortTime = nowIso();
-      addDisturbanceSilently('ABORT: ' + b.dataset.r);
-      $('#abortModal').classList.add('hidden');
-      goToPhase(6);
-    });
-    $('#abortOpenBtn').addEventListener('click', function(){ $('#abortModal').classList.remove('hidden'); });
-    $('#abortCancelBtn').addEventListener('click', function(){ $('#abortModal').classList.add('hidden'); });
-  }
-  function addDisturbanceSilently(note){
-    state.disturbances.push({ time: new Date().toLocaleTimeString(), note: note });
-  }
-
-  /* ================= Init ================= */
-  initAbortModal();
-  renderTimeline();
-  goToPhase(0);
-
-})();
+    function downloadCSV() {
+        const headers = Object.keys(studyData).join(",");
+        const values = Object.values(studyData).map(v => `"${v}"`).join(",");
+        const csvContent = headers + "\n" + values;
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        
+        // Format: P03_M2_2026-08-15_1330_PROTOCOL.csv
+        const filename = `${studyData.participant_id}_${studyData.session_id}_${studyData.date}_${studyData.time_started}_PROTOCOL.csv`;
+        
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
 </script>
+
 </body>
 </html>
