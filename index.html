@@ -2,340 +2,320 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VITAL Drowsiness Detection Study — India</title>
 <style>
-/* =========================================================================
-   GLOBAL & THEME VARIABLES (Dark Glassmorphism)
-   ========================================================================= */
-:root {
-  --bg-dark: #05050a;
-  --bg-gradient: radial-gradient(circle at top right, #1a1a2e 0%, #0f0f1a 50%, #05050a 100%);
-  --glass-bg: rgba(20, 25, 40, 0.4);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --accent-cyan: #00f2fe;
-  --accent-blue: #4facfe;
-  --accent-red: #ff0844;
-  --text-main: #f4f6fa;
-  --text-muted: #9ca3af;
-  --font-main: -apple-system, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, sans-serif;
-}
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
-body { 
-  font-family: var(--font-main); 
-  background: var(--bg-dark);
-  background-image: var(--bg-gradient);
-  color: var(--text-main); 
-  line-height: 1.6; 
+:root {
+  --bg: #0f1420;
+  --panel: #1a2032;
+  --panel-light: #232a3f;
+  --border: #2d3548;
+  --text: #e5e7eb;
+  --text-dim: #9ca3af;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --success: #10b981;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --danger-dark: #991b1b;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: linear-gradient(135deg, #0f1420 0%, #1a2032 100%);
+  color: var(--text);
   min-height: 100vh;
-  overflow-x: hidden;
+  padding: 24px;
+  line-height: 1.55;
 }
-
-/* Background Animated Blobs for "Live" Feel */
-body::before, body::after {
-  content: ''; position: fixed; border-radius: 50%; filter: blur(100px); z-index: -1;
-  animation: floatBlob 15s infinite alternate ease-in-out;
+.screen {
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--panel);
+  padding: 40px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 40px -12px rgba(0,0,0,0.4);
 }
-body::before { width: 400px; height: 400px; background: rgba(0, 242, 254, 0.1); top: -100px; left: -100px; }
-body::after { width: 500px; height: 500px; background: rgba(255, 8, 68, 0.08); bottom: -150px; right: -100px; animation-delay: -5s; }
-
-@keyframes floatBlob {
-  0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(50px, 50px) scale(1.1); }
-}
-
-/* =========================================================================
-   GLASSMORPHISM PANELS & TYPOGRAPHY
-   ========================================================================= */
-.screen { 
-  max-width: 900px; 
-  margin: 40px auto; 
-  background: var(--glass-bg); 
-  padding: 40px; 
-  border-radius: 24px; 
-  backdrop-filter: blur(20px); 
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow); 
-  animation: fadeSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
 .hidden { display: none !important; }
+h1 { font-size: 26px; margin-bottom: 8px; color: var(--text); font-weight: 700; }
+h2 { font-size: 18px; margin-top: 28px; margin-bottom: 12px; color: var(--text); font-weight: 600; }
+h3 { font-size: 15px; margin-top: 16px; margin-bottom: 6px; color: var(--text); }
+p, li { font-size: 14px; margin-bottom: 8px; color: var(--text-dim); }
+p strong, li strong { color: var(--text); }
+ul, ol { padding-left: 22px; margin-bottom: 12px; }
+.subtitle { color: var(--text-dim); font-size: 14px; margin-bottom: 24px; }
 
-@keyframes fadeSlideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-h1 { font-size: 28px; margin-bottom: 8px; color: #fff; text-shadow: 0 0 15px rgba(0, 242, 254, 0.4); letter-spacing: 0.5px;}
-h2 { font-size: 18px; margin-top: 30px; margin-bottom: 15px; color: var(--accent-cyan); text-transform: uppercase; letter-spacing: 1px;}
-p, li { font-size: 15px; color: #cbd5e1; margin-bottom: 10px; }
-ul, ol { padding-left: 22px; margin-bottom: 20px; }
-.subtitle { color: var(--accent-blue); font-size: 14px; margin-bottom: 30px; font-weight: 500; letter-spacing: 1px;}
-
-label { display: block; margin: 15px 0 6px; font-size: 13px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;}
-
-/* Form Elements */
+label { display: block; margin: 12px 0 6px; font-size: 14px; font-weight: 500; color: var(--text); }
 input[type=text], input[type=number], select, textarea {
-  width: 100%; padding: 12px 16px; font-size: 15px; 
-  background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255,255,255,0.1); 
-  border-radius: 10px; color: #fff; font-family: inherit;
-  transition: all 0.3s ease;
+  width: 100%; padding: 10px 12px; font-size: 14px;
+  background: var(--panel-light); border: 1px solid var(--border);
+  color: var(--text); border-radius: 8px; font-family: inherit;
+  transition: border 0.15s;
 }
-input:focus, select:focus, textarea:focus {
-  outline: none; border-color: var(--accent-cyan);
-  box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
-  background: rgba(0, 0, 0, 0.6);
-}
-textarea { min-height: 80px; resize: vertical; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
+textarea { min-height: 60px; resize: vertical; }
 
-/* Custom Futuristic Checkboxes */
-.checkbox-row { 
-  display: flex; align-items: flex-start; gap: 12px; margin: 12px 0; padding: 16px; 
-  background: rgba(255, 255, 255, 0.03); border-radius: 12px; 
-  border: 1px solid rgba(255, 255, 255, 0.05); transition: background 0.3s;
+.checkbox-row {
+  display: flex; align-items: start; gap: 12px; margin: 10px 0;
+  padding: 12px; background: var(--panel-light); border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: border 0.2s;
 }
-.checkbox-row:hover { background: rgba(255, 255, 255, 0.06); }
-.checkbox-row input[type=checkbox] { 
-  appearance: none; width: 22px; height: 22px; background: rgba(0,0,0,0.5); 
-  border: 1px solid var(--accent-cyan); border-radius: 6px; margin-top: 2px;
-  cursor: pointer; position: relative; transition: all 0.2s; flex-shrink: 0;
+.checkbox-row:has(input:checked) { border-color: var(--success); }
+.checkbox-row input[type=checkbox] {
+  margin-top: 3px; flex-shrink: 0;
+  width: 18px; height: 18px; accent-color: var(--accent);
 }
-.checkbox-row input[type=checkbox]:checked {
-  background: var(--accent-cyan); box-shadow: 0 0 10px var(--accent-cyan);
-}
-.checkbox-row input[type=checkbox]:checked::after {
-  content: '✓'; position: absolute; color: #000; font-size: 14px; font-weight: bold;
-  top: 50%; left: 50%; transform: translate(-50%, -50%);
-}
-.checkbox-row label { margin: 0; font-weight: normal; color: #e2e8f0; text-transform: none; font-size: 14px; letter-spacing: 0; cursor: pointer;}
+.checkbox-row label { margin: 0; font-weight: normal; color: var(--text-dim); }
+.checkbox-row label strong { color: var(--text); }
 
-/* Buttons */
-.btn { 
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
-  color: #05050a; padding: 14px 28px; border: none; border-radius: 10px; 
-  font-size: 16px; cursor: pointer; margin-top: 24px; font-weight: 700; 
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3); text-transform: uppercase; letter-spacing: 1px;
+.btn {
+  background: var(--accent); color: white; padding: 12px 24px;
+  border: none; border-radius: 8px; font-size: 15px;
+  cursor: pointer; margin-top: 20px; font-weight: 600;
+  transition: all 0.15s; font-family: inherit;
 }
-.btn:hover { 
-  transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0, 242, 254, 0.5); 
+.btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.btn:active { transform: translateY(0); }
+.btn:disabled { background: #4b5563; cursor: not-allowed; transform: none; }
+.btn-secondary { background: #4b5563; }
+.btn-secondary:hover { background: #6b7280; }
+.btn-download { background: var(--success); padding: 16px 32px; font-size: 16px; }
+.btn-download:hover { background: #059669; }
+
+.kss-table { margin: 12px 0; width: 100%; border-collapse: collapse; font-size: 13px; }
+.kss-table td { padding: 8px 12px; border: 1px solid var(--border); color: var(--text-dim); }
+.kss-table td:first-child {
+  text-align: center; font-weight: bold; width: 50px;
+  color: var(--text); background: var(--panel-light);
 }
-.btn-secondary { 
-  background: transparent; color: var(--accent-cyan); border: 1px solid var(--accent-cyan); 
-  box-shadow: none;
+.warn {
+  background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--warn);
+  padding: 12px; margin: 12px 0; font-size: 13px; border-radius: 6px;
+  color: var(--text);
 }
-.btn-secondary:hover { background: rgba(0, 242, 254, 0.1); box-shadow: 0 0 15px rgba(0, 242, 254, 0.2); }
-.btn-download { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
-.btn-download:hover { box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5); }
-
-/* Tables & Badges */
-.kss-table { margin: 20px 0; width: 100%; border-collapse: separate; border-spacing: 0; border-radius: 12px; overflow: hidden; border: 1px solid var(--glass-border); }
-.kss-table td { padding: 10px 15px; background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05); color: #cbd5e1; }
-.kss-table td:first-child { text-align: center; font-weight: bold; width: 60px; color: var(--accent-cyan); background: rgba(255,255,255,0.04);}
-.kss-table tr:last-child td { border-bottom: none; }
-
-.warn { background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 16px; margin: 20px 0; border-radius: 0 8px 8px 0; color: #fcd34d; }
-.info { background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; padding: 16px; margin: 20px 0; border-radius: 0 8px 8px 0; color: #93c5fd; }
-.error { color: #ef4444; font-size: 14px; margin-top: 10px; font-weight: 500; }
-
-.session-badge { 
-  display: inline-block; background: rgba(0, 242, 254, 0.15); color: var(--accent-cyan); 
-  padding: 4px 12px; border-radius: 20px; font-size: 12px; margin-left: 12px; 
-  border: 1px solid rgba(0, 242, 254, 0.3); vertical-align: middle;
+.info {
+  background: rgba(59, 130, 246, 0.1); border-left: 4px solid var(--accent);
+  padding: 12px; margin: 12px 0; font-size: 13px; border-radius: 6px;
+  color: var(--text);
 }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.session-badge {
+  display: inline-block; background: var(--accent); color: white;
+  padding: 4px 14px; border-radius: 20px; font-size: 13px; margin-left: 8px;
+  font-weight: 600;
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.error { color: var(--danger); font-size: 13px; margin-top: 6px; }
 
-/* =========================================================================
-   TASK SCREEN — LIVE HUD AESTHETIC
-   ========================================================================= */
+/* Pre-task confirmation buttons */
+.confirm-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0;
+}
+.confirm-btn {
+  padding: 20px; background: var(--panel-light);
+  border: 2px solid var(--border); border-radius: 12px;
+  color: var(--text); cursor: pointer; font-family: inherit;
+  font-size: 15px; font-weight: 600; text-align: center;
+  transition: all 0.2s;
+}
+.confirm-btn .confirm-icon {
+  display: block; font-size: 32px; margin-bottom: 8px;
+}
+.confirm-btn:hover { border-color: var(--accent); }
+.confirm-btn.confirmed {
+  background: rgba(16, 185, 129, 0.1); border-color: var(--success); color: var(--success);
+}
+.confirm-btn.confirmed .confirm-icon::before { content: '✓ '; }
+
+/* ============================================================ */
+/* TASK SCREEN                                                  */
+/* ============================================================ */
 #screen-task {
-  max-width: none; margin: 0; padding: 0; border-radius: 0; border: none; box-shadow: none;
-  background: var(--bg-dark); width: 100vw; height: 100vh; overflow: hidden;
-  display: flex; flex-direction: column; backdrop-filter: none;
+  max-width: none; margin: 0; padding: 0;
+  border-radius: 0; box-shadow: none; border: none;
+  background: transparent;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
 }
 
-.task-topbar {
-  height: 64px; padding: 0 32px; display: flex; align-items: center; gap: 20px;
-  background: rgba(10, 10, 15, 0.8); border-bottom: 1px solid rgba(255,255,255,0.05); 
-  backdrop-filter: blur(20px); flex-shrink: 0; z-index: 10;
+.task-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 24px; background: rgba(0,0,0,0.5);
+  border-bottom: 1px solid var(--border); backdrop-filter: blur(10px);
 }
-.status-badge {
-  display: flex; align-items: center; gap: 10px; padding: 6px 16px;
-  background: rgba(255,255,255,0.03); border-radius: 20px; font-size: 12px; font-weight: 600;
-  border: 1px solid rgba(255,255,255,0.08); text-transform: uppercase; letter-spacing: 1px; color: #94a3b8;
+.task-header-left { display: flex; align-items: center; gap: 16px; }
+.task-id-badge {
+  padding: 6px 14px; background: var(--accent); color: white;
+  border-radius: 20px; font-weight: 600; font-size: 13px;
+}
+
+.status-indicator {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 14px; background: rgba(16, 185, 129, 0.15);
+  border-radius: 20px; font-size: 13px; color: var(--success);
+  font-weight: 500;
 }
 .status-dot {
-  width: 10px; height: 10px; border-radius: 50%;
-  background: #10b981; box-shadow: 0 0 12px #10b981;
-  animation: pulse-dot 1.5s infinite;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--success); animation: pulse-dot 1.5s infinite;
 }
-@keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
-.status-badge.hrv .status-dot { background: var(--accent-cyan); box-shadow: 0 0 12px var(--accent-cyan); }
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.2); }
+}
 
 .task-timer {
-  font-family: 'JetBrains Mono', 'SF Mono', Consolas, monospace; font-size: 18px; color: var(--accent-cyan);
-  padding: 8px 20px; background: rgba(0, 242, 254, 0.05); border-radius: 8px;
-  border: 1px solid rgba(0, 242, 254, 0.2); letter-spacing: 1px; font-weight: bold;
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 20px; font-weight: 700; color: var(--text);
+  background: rgba(0,0,0,0.4); padding: 6px 16px; border-radius: 8px;
 }
-.task-participant { font-size: 14px; color: #94a3b8; padding: 8px 16px; background: rgba(255,255,255,0.03); border-radius: 8px; font-weight: 500;}
-.task-spacer { flex-grow: 1; }
-.finish-btn {
-  padding: 10px 20px; background: rgba(239, 68, 68, 0.1); color: #fca5a5; 
-  border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; cursor: pointer; 
-  font-size: 13px; font-weight: 600; text-transform: uppercase; transition: all 0.2s;
-}
-.finish-btn:hover { background: rgba(239, 68, 68, 0.2); box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
 
-/* Main Task Area */
 .task-main {
-  flex-grow: 1; display: grid; grid-template-columns: 60% 40%; gap: 40px;
-  padding: 40px; align-items: center; position: relative;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 24px;
+  align-items: center;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
 }
 
-/* Video HUD Frame */
+/* Video panel */
 .video-panel {
-  position: relative; background: #000; border-radius: 16px; overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.05);
-  aspect-ratio: 16/9; width: 100%;
+  background: #000; border-radius: 16px; overflow: hidden;
+  aspect-ratio: 16/9;
+  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.6);
+  border: 1px solid var(--border);
+  position: relative;
 }
-.video-panel video { width: 100%; height: 100%; object-fit: cover; display: block; opacity: 0.9;}
-.video-panel::before {
-  content: '▶ SYS.CAM.01 // DRIVING SIMULATION'; position: absolute; top: 16px; left: 20px;
-  color: var(--accent-cyan); font-family: monospace; font-size: 12px; letter-spacing: 2px; z-index: 2;
-  text-shadow: 0 0 5px rgba(0, 242, 254, 0.5);
-}
-/* Cyberpunk Corner Accents for Video */
-.video-panel::after {
-  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-  background: 
-    linear-gradient(to right, rgba(0,242,254,0.3) 2px, transparent 2px) 0 0,
-    linear-gradient(to bottom, rgba(0,242,254,0.3) 2px, transparent 2px) 0 0,
-    linear-gradient(to left, rgba(0,242,254,0.3) 2px, transparent 2px) 100% 0,
-    linear-gradient(to bottom, rgba(0,242,254,0.3) 2px, transparent 2px) 100% 0,
-    linear-gradient(to right, rgba(0,242,254,0.3) 2px, transparent 2px) 0 100%,
-    linear-gradient(to top, rgba(0,242,254,0.3) 2px, transparent 2px) 0 100%,
-    linear-gradient(to left, rgba(0,242,254,0.3) 2px, transparent 2px) 100% 100%,
-    linear-gradient(to top, rgba(0,242,254,0.3) 2px, transparent 2px) 100% 100%;
-  background-size: 30px 30px; background-repeat: no-repeat;
-}
+#task-video { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-/* 3D Morphing Brake Pedal */
-.pedal-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
-.pedal-hint { color: #94a3b8; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; animation: pulse-text 2s infinite; }
-@keyframes pulse-text { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-
+/* Brake pedal */
+.brake-panel {
+  display: flex; align-items: center; justify-content: center; flex-direction: column;
+  gap: 16px;
+}
+.brake-label { color: var(--text-dim); font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
 .brake-pedal {
-  position: relative; width: 240px; height: 380px; background: none; border: none; cursor: pointer; padding: 0;
-  perspective: 1000px; transition: transform 0.1s ease-out; outline: none;
+  width: 220px; height: 320px;
+  background: linear-gradient(180deg, #7f1d1d 0%, #dc2626 45%, #991b1b 100%);
+  border-radius: 24px 24px 40px 40px;
+  border: none; cursor: pointer;
+  position: relative;
+  box-shadow:
+    inset 0 4px 12px rgba(255,255,255,0.15),
+    inset 0 -8px 20px rgba(0,0,0,0.4),
+    0 20px 40px -10px rgba(220, 38, 38, 0.5),
+    0 12px 24px rgba(0,0,0,0.4);
+  transition: all 0.08s;
+  font-family: inherit; color: white;
+  font-size: 28px; font-weight: 800; letter-spacing: 4px;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  overflow: hidden;
 }
-.pedal-shape {
-  position: relative; width: 100%; height: 100%; transform: rotateX(25deg); transform-origin: bottom center;
-  background: linear-gradient(160deg, #ff0844 0%, #d92727 40%, #7f1d1d 100%);
-  border-radius: 25px 25px 45px 45px / 20px 20px 35px 35px;
-  box-shadow: 
-    inset 0 6px 12px rgba(255,255,255,0.4), inset 0 -10px 20px rgba(0,0,0,0.5),
-    0 25px 50px rgba(255, 8, 68, 0.4), 0 0 0 4px #450a0a;
-  display: flex; align-items: center; justify-content: center; transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+/* pedal grip lines */
+.brake-pedal::before {
+  content: ''; position: absolute; left: 15%; right: 15%;
+  top: 30px; bottom: 30px;
+  background:
+    repeating-linear-gradient(0deg,
+      transparent 0, transparent 22px,
+      rgba(0,0,0,0.25) 22px, rgba(0,0,0,0.25) 26px);
+  border-radius: 12px;
+  pointer-events: none;
 }
-.brake-pedal:active .pedal-shape {
-  transform: rotateX(25deg) translateY(12px);
-  box-shadow: inset 0 4px 8px rgba(255,255,255,0.2), inset 0 -4px 8px rgba(0,0,0,0.6),
-    0 10px 20px rgba(255, 8, 68, 0.3), 0 0 0 4px #450a0a;
+.brake-pedal:hover {
+  box-shadow:
+    inset 0 4px 12px rgba(255,255,255,0.2),
+    inset 0 -8px 20px rgba(0,0,0,0.4),
+    0 24px 48px -10px rgba(220, 38, 38, 0.7),
+    0 12px 24px rgba(0,0,0,0.5);
 }
-.brake-pedal.pulse .pedal-shape { animation: pedal-shockwave 0.5s cubic-bezier(0.1, 0.8, 0.2, 1); }
-@keyframes pedal-shockwave {
-  0% { box-shadow: inset 0 6px 12px rgba(255,255,255,0.4), inset 0 -10px 20px rgba(0,0,0,0.5), 0 25px 50px rgba(255, 8, 68, 0.4), 0 0 0 4px #450a0a; }
-  30% { box-shadow: inset 0 6px 12px rgba(255,255,255,0.5), inset 0 -10px 20px rgba(0,0,0,0.5), 0 25px 80px rgba(255, 60, 100, 1), 0 0 0 4px #450a0a, 0 0 50px rgba(255, 8, 68, 0.8); filter: brightness(1.2); }
-  100% { box-shadow: inset 0 6px 12px rgba(255,255,255,0.4), inset 0 -10px 20px rgba(0,0,0,0.5), 0 25px 50px rgba(255, 8, 68, 0.4), 0 0 0 4px #450a0a; }
+.brake-pedal:active,
+.brake-pedal.pressed {
+  transform: translateY(6px);
+  box-shadow:
+    inset 0 4px 12px rgba(255,255,255,0.1),
+    inset 0 -4px 12px rgba(0,0,0,0.5),
+    0 4px 12px -4px rgba(220, 38, 38, 0.4),
+    0 4px 8px rgba(0,0,0,0.3);
 }
-.pedal-label {
-  color: #fff; font-size: 36px; font-weight: 900; letter-spacing: 4px;
-  text-shadow: 0 4px 8px rgba(0,0,0,0.6), 0 0 20px rgba(255,255,255,0.4);
-  transform: rotateX(-25deg); 
+.brake-pedal.beep-active {
+  animation: beep-pulse 0.5s ease-out;
+}
+@keyframes beep-pulse {
+  0% {
+    box-shadow:
+      inset 0 4px 12px rgba(255,255,255,0.15),
+      0 0 0 0 rgba(239, 68, 68, 0.7),
+      0 12px 24px rgba(0,0,0,0.4);
+  }
+  100% {
+    box-shadow:
+      inset 0 4px 12px rgba(255,255,255,0.15),
+      0 0 0 40px rgba(239, 68, 68, 0),
+      0 12px 24px rgba(0,0,0,0.4);
+  }
 }
 
-/* Screen Beep Flash */
-.beep-flash {
-  position: fixed; inset: 0; background: radial-gradient(circle, rgba(255,8,68,0.2) 0%, transparent 80%);
-  opacity: 0; pointer-events: none; z-index: 100; mix-blend-mode: screen;
+/* KSS strip */
+.kss-strip {
+  background: rgba(0,0,0,0.4);
+  border-top: 1px solid var(--border);
+  padding: 20px 24px;
+  backdrop-filter: blur(10px);
 }
-.beep-flash.active { animation: screen-flash 0.6s ease-out; }
-@keyframes screen-flash { 0% { opacity: 0; } 20% { opacity: 1; } 100% { opacity: 0; } }
+.kss-strip-title {
+  text-align: center; font-size: 14px; color: var(--text-dim);
+  margin-bottom: 12px; font-weight: 500;
+}
+.kss-current {
+  text-align: center; font-size: 13px; color: var(--text-dim); margin-top: 8px;
+}
+.kss-current strong { color: var(--success); }
+.kss-buttons-row {
+  display: grid; grid-template-columns: repeat(9, 1fr);
+  gap: 8px; max-width: 1200px; margin: 0 auto;
+}
+.kss-btn {
+  padding: 12px 6px; border: 2px solid transparent;
+  border-radius: 10px; cursor: pointer; font-family: inherit;
+  text-align: center; transition: all 0.15s;
+  color: white; font-weight: 600;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.kss-btn .kss-num { font-size: 22px; font-weight: 800; }
+.kss-btn .kss-label { font-size: 10px; opacity: 0.9; line-height: 1.2; }
+.kss-btn:hover { transform: translateY(-3px); }
+.kss-btn.selected { border-color: white; transform: translateY(-3px) scale(1.05); box-shadow: 0 8px 16px rgba(0,0,0,0.4); }
+.kss-btn[data-value="1"] { background: #059669; }
+.kss-btn[data-value="2"] { background: #10b981; }
+.kss-btn[data-value="3"] { background: #22c55e; }
+.kss-btn[data-value="4"] { background: #84cc16; }
+.kss-btn[data-value="5"] { background: #eab308; }
+.kss-btn[data-value="6"] { background: #f59e0b; }
+.kss-btn[data-value="7"] { background: #f97316; }
+.kss-btn[data-value="8"] { background: #ef4444; }
+.kss-btn[data-value="9"] { background: #b91c1c; }
 
-/* Live KSS Row */
-.kss-row {
-  padding: 24px 32px; background: rgba(10, 10, 15, 0.8); border-top: 1px solid rgba(255,255,255,0.05);
-  backdrop-filter: blur(20px); flex-shrink: 0; z-index: 10;
+/* Small emergency exit for testing */
+.exit-btn {
+  position: fixed; bottom: 16px; right: 16px;
+  padding: 6px 12px; background: rgba(0,0,0,0.6);
+  color: var(--text-dim); border: 1px solid var(--border);
+  border-radius: 6px; font-size: 11px; cursor: pointer;
+  font-family: inherit;
 }
-.kss-row-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.kss-row-label { color: #fff; font-size: 15px; font-weight: 600; letter-spacing: 0.5px; }
-.kss-row-current { color: var(--accent-cyan); font-size: 14px; font-weight: 600; padding: 4px 12px; background: rgba(0, 242, 254, 0.1); border-radius: 12px;}
-.kss-buttons-inline { display: grid; grid-template-columns: repeat(9, 1fr); gap: 10px; }
+.exit-btn:hover { background: rgba(0,0,0,0.8); color: var(--text); }
 
-/* Morphing Gradient KSS Buttons */
-.kss-btn-inline {
-  padding: 14px 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
-  cursor: pointer; text-align: center; font-family: inherit; color: white; position: relative;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  background-size: 200% auto;
+/* Test mode badge */
+.test-mode-badge {
+  background: var(--warn); color: black; padding: 4px 12px;
+  border-radius: 20px; font-size: 12px; font-weight: 700;
+  margin-left: 8px;
 }
-.kss-btn-inline::before { /* Glass overlay */
-  content:''; position:absolute; inset:0; border-radius: 12px; background: linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, transparent 100%); pointer-events: none;
-}
-.kss-btn-inline .kss-num { display: block; font-size: 24px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.5);}
-.kss-btn-inline .kss-label { display: block; font-size: 11px; opacity: 0.9; margin-top: 4px; line-height: 1.2;}
-.kss-btn-inline:hover { transform: translateY(-4px); background-position: right center; box-shadow: 0 10px 20px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.4);}
-.kss-btn-inline.selected { transform: scale(1.05) translateY(-4px); border: 2px solid #fff; box-shadow: 0 0 25px rgba(255,255,255,0.5); z-index: 2;}
-
-.kss-btn-inline[data-value="1"] { background-image: linear-gradient(to right, #0ba360 0%, #3cb085 51%, #0ba360 100%); }
-.kss-btn-inline[data-value="2"] { background-image: linear-gradient(to right, #10b981 0%, #6ee7b7 51%, #10b981 100%); }
-.kss-btn-inline[data-value="3"] { background-image: linear-gradient(to right, #34d399 0%, #a7f3d0 51%, #34d399 100%); color: #064e3b;}
-.kss-btn-inline[data-value="4"] { background-image: linear-gradient(to right, #a3e635 0%, #d9f99d 51%, #a3e635 100%); color: #3f6212;}
-.kss-btn-inline[data-value="5"] { background-image: linear-gradient(to right, #facc15 0%, #fef08a 51%, #facc15 100%); color: #713f12;}
-.kss-btn-inline[data-value="6"] { background-image: linear-gradient(to right, #fb923c 0%, #fed7aa 51%, #fb923c 100%); color: #7c2d12;}
-.kss-btn-inline[data-value="7"] { background-image: linear-gradient(to right, #f97316 0%, #ffedd5 51%, #f97316 100%); }
-.kss-btn-inline[data-value="8"] { background-image: linear-gradient(to right, #ef4444 0%, #fecaca 51%, #ef4444 100%); }
-.kss-btn-inline[data-value="9"] { background-image: linear-gradient(to right, #b91c1c 0%, #ef4444 51%, #b91c1c 100%); }
-
-/* Start/End Overlays */
-.start-kss-overlay {
-  position: fixed; inset: 0; background: rgba(5, 5, 10, 0.95); backdrop-filter: blur(10px); z-index: 200;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px;
-}
-.start-kss-overlay h2 { color: #fff; font-size: 32px; margin-bottom: 40px; text-transform: none; font-weight: 500; text-shadow: none;}
-.start-kss-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 800px; width: 100%;}
-.start-kss-btn {
-  padding: 30px 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);
-  cursor: pointer; text-align: center; font-family: inherit; color: white; background-size: 200% auto;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-}
-.start-kss-btn::before { content:''; position:absolute; inset:0; border-radius: 16px; background: linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, transparent 100%); pointer-events: none;}
-.start-kss-btn:hover { transform: translateY(-5px); background-position: right center; border-color: rgba(255,255,255,0.5); box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
-.start-kss-btn .n { display: block; font-size: 40px; font-weight: 900; text-shadow: 0 2px 5px rgba(0,0,0,0.5);}
-.start-kss-btn .l { display: block; font-size: 14px; opacity: 0.9; margin-top: 8px; font-weight: 500;}
-
-/* Apply same colors to grid buttons */
-.start-kss-btn[data-value="1"] { background-image: linear-gradient(to right, #0ba360 0%, #3cb085 51%, #0ba360 100%); }
-.start-kss-btn[data-value="2"] { background-image: linear-gradient(to right, #10b981 0%, #6ee7b7 51%, #10b981 100%); }
-.start-kss-btn[data-value="3"] { background-image: linear-gradient(to right, #34d399 0%, #a7f3d0 51%, #34d399 100%); color: #064e3b;}
-.start-kss-btn[data-value="4"] { background-image: linear-gradient(to right, #a3e635 0%, #d9f99d 51%, #a3e635 100%); color: #3f6212;}
-.start-kss-btn[data-value="5"] { background-image: linear-gradient(to right, #facc15 0%, #fef08a 51%, #facc15 100%); color: #713f12;}
-.start-kss-btn[data-value="6"] { background-image: linear-gradient(to right, #fb923c 0%, #fed7aa 51%, #fb923c 100%); color: #7c2d12;}
-.start-kss-btn[data-value="7"] { background-image: linear-gradient(to right, #f97316 0%, #ffedd5 51%, #f97316 100%); }
-.start-kss-btn[data-value="8"] { background-image: linear-gradient(to right, #ef4444 0%, #fecaca 51%, #ef4444 100%); }
-.start-kss-btn[data-value="9"] { background-image: linear-gradient(to right, #b91c1c 0%, #ef4444 51%, #b91c1c 100%); }
-
-/* Countdown overlay */
-.countdown-overlay {
-  position: fixed; inset: 0; background: rgba(5, 5, 10, 0.9); backdrop-filter: blur(5px); z-index: 150;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; color: white;
-}
-.countdown-num { font-size: 160px; font-weight: 900; color: var(--accent-cyan); text-shadow: 0 0 50px rgba(0, 242, 254, 0.6); animation: pulse-text 1s infinite;}
-.countdown-label { font-size: 24px; margin-top: 20px; color: #94a3b8; letter-spacing: 4px; text-transform: uppercase;}
 </style>
 </head>
 <body>
@@ -344,83 +324,124 @@ textarea { min-height: 80px; resize: vertical; }
 <!-- SCREEN 1: INTRO + CONSENT                                    -->
 <!-- ============================================================ -->
 <div class="screen" id="screen-intro">
-  <h1>VITAL Drowsiness Detection Study</h1>
-  <p class="subtitle">Biometric Dashboard — Camera & Wearable Feasibility</p>
+  <h1>Drowsiness Detection Study</h1>
+  <p class="subtitle">Camera and Wearable-based Feasibility Study — VITAL Project, EDAG India / THI Germany</p>
 
   <h2>1. What this study is about</h2>
   <p>This is a research study investigating how well camera-based and wearable-based systems can detect changes in drowsiness during the workday. It is part of a Master's thesis at Technische Hochschule Ingolstadt (THI) in cooperation with EDAG Engineering Group.</p>
+  <p>The goal is to check technical feasibility, data quality, and comparability of the two approaches — not to make medical or health assessments.</p>
 
   <h2>2. What participation involves</h2>
-  <p>Three sessions on the same day: morning (M1), after lunch (M2), and end of workday (M3). Each session lasts about 10-15 minutes.</p>
+  <p>You will complete <strong>three sessions on the same day</strong>: morning (M1), after lunch (M2), and end of workday (M3). Each session lasts about <strong>40 minutes</strong>, matching the session duration used in the research dataset (UL-DD) that this study builds on.</p>
+  <p>Total time commitment: approximately 2.5-3 hours across the day (including a short intro before the first session).</p>
+  <p>During each session you will:</p>
   <ul>
     <li>Wear a Samsung Galaxy Watch on your non-dominant wrist</li>
     <li>Sit in front of a laptop with a camera facing you</li>
-    <li>Watch a 10-minute highway driving video</li>
+    <li>Watch a 40-minute highway driving video</li>
     <li>When you hear a beep, click the on-screen brake pedal as fast as possible</li>
-    <li>Rate your current sleepiness on the KSS scale</li>
+    <li>Continuously rate your current sleepiness using the KSS buttons visible below the video</li>
+    <li>Answer a few short questions about sleep, meals, and caffeine before each session</li>
   </ul>
 
   <h2>3. Data we collect</h2>
   <ul>
     <li>Heart rate and inter-beat intervals from the watch</li>
-    <li>Camera-based drowsiness score, blink rate, head pose, face detection status</li>
-    <li>Your KSS self-ratings throughout the session</li>
-    <li>Your reaction time</li>
-    <li>Context: sleep, caffeine, meal timing, medications</li>
+    <li>Camera-based drowsiness score, blink rate, blink duration, head pose, face detection status</li>
+    <li>Your KSS self-ratings throughout each session</li>
+    <li>Your reaction time (how fast you click brake after each beep)</li>
+    <li>Context: approximate sleep the night before, caffeine intake, meal timing, medications, wellbeing</li>
   </ul>
-  <p><strong>We do NOT store:</strong> your name or employee ID alongside sensor data. Participant IDs (P01, P02, ...) are used in all data files.</p>
+  <p><strong>We do NOT store:</strong> your name, employee ID, or any direct identifier alongside the sensor data. You will be assigned a participant ID (e.g., P01) that is used in all data files.</p>
 
   <h2>4. Data storage and transfer</h2>
   <div class="info">
     <strong>Cross-border transfer:</strong> Data collected in India will be transferred to and analyzed in Germany at THI / EDAG for the purpose of this research.
   </div>
-  
+  <p>Data will be stored until the completion of the associated thesis research and subsequent scientific publication. Anonymized aggregate results may be retained indefinitely for research reproducibility.</p>
+  <p>Access to your data is limited to the researcher (Shubh Patel, THI/EDAG) and the thesis supervisor (Prof. Schwerd, THI). Data will not be shared with anyone else without your renewed consent.</p>
+
   <h2>5. Your rights</h2>
   <ul>
-    <li>Participation is <strong>completely voluntary</strong>. It has no effect on your employment.</li>
-    <li>You can <strong>withdraw at any time</strong> without giving a reason.</li>
+    <li>Participation is <strong>completely voluntary</strong>. Choosing not to participate has no effect on your employment or professional standing at EDAG.</li>
+    <li>You can <strong>withdraw at any time</strong>, before, during, or after a session, without giving any reason.</li>
+    <li>You can <strong>request deletion</strong> of your data at any time.</li>
+    <li>You can request to <strong>see what data</strong> has been collected about you.</li>
+    <li>Neither participation nor non-participation will be shared with your line manager or affect any personnel decisions.</li>
   </ul>
 
-  <h2>6. Consent</h2>
+  <h2>6. Health and safety</h2>
+  <ul>
+    <li>There are no known health risks from wearing the watch or from being observed by the camera.</li>
+    <li>If you feel uncomfortable at any time during the session, tell the researcher and the session will be stopped.</li>
+    <li>Do not participate if you are currently unwell.</li>
+  </ul>
+
+  <h2>7. Karolinska Sleepiness Scale (KSS)</h2>
+  <p>You will use this 9-point scale to rate your current sleepiness. The buttons are always visible below the video during the session — click whichever level best matches how you feel at any moment, especially right after each beep.</p>
+  <table class="kss-table">
+    <tr><td>1</td><td>Extremely alert</td></tr>
+    <tr><td>2</td><td>Very alert</td></tr>
+    <tr><td>3</td><td>Alert</td></tr>
+    <tr><td>4</td><td>Rather alert</td></tr>
+    <tr><td>5</td><td>Neither alert nor sleepy</td></tr>
+    <tr><td>6</td><td>Some signs of sleepiness</td></tr>
+    <tr><td>7</td><td>Sleepy, but no difficulty remaining awake</td></tr>
+    <tr><td>8</td><td>Sleepy, some effort to keep awake</td></tr>
+    <tr><td>9</td><td>Very sleepy, great effort to keep awake, fighting sleep</td></tr>
+  </table>
+
+  <h2>8. Legal basis</h2>
+  <p><strong>Under EU GDPR:</strong> Consent under Article 6(1)(a). For physiological/health data: explicit consent under Article 9(2)(a). For cross-border transfer to Germany: Article 49(1)(a).</p>
+  <p><strong>Under India Digital Personal Data Protection Act 2023:</strong> Consent for processing personal data including biometric data. Explicit consent for cross-border transfer to Germany. Right to withdraw consent at any time.</p>
+
+  <h2>9. Contact</h2>
+  <p><strong>Researcher:</strong> Shubh Patel — [your.email@edag.com] / [your.thi.email@thi.de]</p>
+  <p><strong>Supervisor:</strong> Prof. Schwerd, THI Ingolstadt</p>
+  <p><strong>EDAG Data Protection contact:</strong> [DPO contact to be added]</p>
+
+  <h2>10. Consent</h2>
+  <p>Please check the boxes below to indicate your consent.</p>
+
   <div class="checkbox-row">
     <input type="checkbox" id="c1">
-    <label for="c1">I have read and understood the information above.</label>
+    <label for="c1">I have read and understood the study information above. I confirm that I can read and understand English sufficiently to give informed consent.</label>
   </div>
   <div class="checkbox-row">
     <input type="checkbox" id="c2">
-    <label for="c2">I consent to the collection of my physiological data (HR, HRV) and extracted camera features. <strong>(Required)</strong></label>
+    <label for="c2">I consent to the collection of my heart rate, HRV, KSS ratings, reaction times, and extracted camera features. <strong>(Required)</strong></label>
   </div>
   <div class="checkbox-row">
     <input type="checkbox" id="c3">
-    <label for="c3">I consent to the transfer of my pseudonymized data from India to Germany. <strong>(Required)</strong></label>
+    <label for="c3">I consent to the transfer of my pseudonymized data from India to Germany for research analysis. <strong>(Required)</strong></label>
   </div>
   <div class="checkbox-row">
     <input type="checkbox" id="c4">
-    <label for="c4"><strong>Optional:</strong> I consent to the storage of raw video recordings of my face for possible future re-analysis.</label>
+    <label for="c4"><strong>Optional:</strong> I additionally consent to the storage of raw video recordings of my face for possible future re-analysis. You can participate without this consent.</label>
   </div>
   <div class="checkbox-row">
     <input type="checkbox" id="c5">
-    <label for="c5">I understand my participation is voluntary and can be withdrawn at any time.</label>
+    <label for="c5">I understand that my participation is voluntary and I can withdraw at any time.</label>
   </div>
 
-  <h2>7. Participant Initialization</h2>
+  <h2>11. Participant identification</h2>
   <div class="form-row">
     <div>
       <label for="participant-id">Participant ID *</label>
       <input type="text" id="participant-id" placeholder="e.g. P01">
     </div>
     <div>
-      <label for="session-tag">Session Sequence *</label>
+      <label for="session-tag">Session *</label>
       <select id="session-tag">
-        <option value="">-- Initialize Session --</option>
-        <option value="M1">M1 — Morning Baseline</option>
-        <option value="M2">M2 — Post-Prandial (After lunch)</option>
-        <option value="M3">M3 — End of Workday</option>
+        <option value="">-- Select --</option>
+        <option value="M1">M1 — Morning</option>
+        <option value="M2">M2 — After lunch</option>
+        <option value="M3">M3 — End of workday</option>
       </select>
     </div>
   </div>
 
-  <button class="btn" id="btn-goto-context">Initialize Telemetry</button>
+  <button class="btn" id="btn-goto-context">Continue</button>
   <div id="intro-error" class="error"></div>
 </div>
 
@@ -429,69 +450,67 @@ textarea { min-height: 80px; resize: vertical; }
 <!-- SCREEN 2: CONTEXT QUESTIONNAIRE                              -->
 <!-- ============================================================ -->
 <div class="screen hidden" id="screen-context">
-  <h1>Physiological Context <span class="session-badge" id="ctx-session-badge">M1</span></h1>
-  <p class="subtitle">System Calibration Inputs</p>
+  <h1>Context questionnaire <span class="session-badge" id="ctx-session-badge">M1</span></h1>
+  <p class="subtitle">Quick questions before the session.</p>
 
   <h2>Sleep and daily rhythm</h2>
   <div class="form-row">
     <div>
-      <label>Sleep Duration (Last 24h)</label>
-      <input type="number" id="ctx-sleep-hours" min="0" max="24" step="0.5" placeholder="Hours">
+      <label>Approximate hours of sleep last night</label>
+      <input type="number" id="ctx-sleep-hours" min="0" max="24" step="0.5">
     </div>
     <div>
-      <label>Wake-up Timestamp</label>
+      <label>Time you woke up this morning</label>
       <input type="text" id="ctx-wake-time" placeholder="e.g. 07:00">
     </div>
   </div>
-
   <div class="form-row">
     <div>
-      <label>Last Meal Timestamp</label>
+      <label>Time of last meal</label>
       <input type="text" id="ctx-meal-time" placeholder="e.g. 13:15">
     </div>
     <div>
-      <label>Last Caffeine Intake</label>
-      <input type="text" id="ctx-caffeine-time" placeholder="e.g. 08:30 or 'None'">
+      <label>Time of last caffeine</label>
+      <input type="text" id="ctx-caffeine-time" placeholder="e.g. 08:30 or 'none today'">
     </div>
   </div>
 
-  <h2>Medications & Baseline</h2>
-  <label>Beta-blocker administration?</label>
+  <h2>Medications</h2>
+  <p class="subtitle">Some medications affect heart rate.</p>
+  <label>Are you currently taking any beta-blockers (Metoprolol/Betaloc, Bisoprolol/Concor, Atenolol/Aten, Propranolol, or similar)?</label>
   <select id="ctx-beta-blockers">
-    <option value="">-- Select Status --</option>
-    <option value="no">Negative</option>
-    <option value="yes">Positive (Active)</option>
+    <option value="">-- Select --</option>
+    <option value="no">No</option>
+    <option value="yes">Yes</option>
     <option value="unsure">Unsure</option>
   </select>
   <div class="warn" id="beta-warn" style="display:none">
-    ALERT: Beta-blockers suppress autonomic HRV response. Subject may require exclusion from dataset.
+    Beta-blockers substantially affect heart rate variability. Please inform the researcher — you may not be eligible for this study.
   </div>
+  <label>Any other blood pressure, heart, or thyroid medication? Please specify (name only).</label>
+  <input type="text" id="ctx-other-meds" placeholder="e.g. Ramipril, or 'none'">
 
-  <label>Other cardiovascular/thyroid agents?</label>
-  <input type="text" id="ctx-other-meds" placeholder="List agents or 'None'">
-
-  <h2>Physical State</h2>
+  <h2>Today's state</h2>
   <div class="form-row">
     <div>
-      <label>Recent Physical Exertion (2h)</label>
+      <label>Unusual physical exertion in the past 2 hours?</label>
       <select id="ctx-exertion">
         <option value="">-- Select --</option>
-        <option value="no">Negative</option>
-        <option value="yes">Positive</option>
+        <option value="no">No</option>
+        <option value="yes">Yes</option>
       </select>
     </div>
     <div>
-      <label>Current Homeostasis</label>
+      <label>Feeling well right now?</label>
       <select id="ctx-wellbeing">
         <option value="">-- Select --</option>
-        <option value="yes">Nominal (Feeling fine)</option>
-        <option value="mild">Sub-nominal (Mild discomfort)</option>
-        <option value="unwell">Compromised (Illness/Fever)</option>
+        <option value="yes">Yes</option>
+        <option value="mild">Mild discomfort</option>
+        <option value="unwell">Unwell</option>
       </select>
     </div>
   </div>
-
-  <label>Female participants (optional): pregnancy status</label>
+  <label>For female participants (optional): pregnancy status</label>
   <select id="ctx-pregnancy">
     <option value="">-- Select or skip --</option>
     <option value="no">Not pregnant</option>
@@ -499,123 +518,116 @@ textarea { min-height: 80px; resize: vertical; }
     <option value="prefer-not-say">Prefer not to say</option>
   </select>
 
-  <h2>Sensor Calibration</h2>
+  <h2>Sensor-related</h2>
   <div class="form-row">
     <div>
-      <label>Optical Corrections</label>
+      <label>Wearing glasses or contacts today?</label>
       <select id="ctx-vision">
         <option value="">-- Select --</option>
-        <option value="none">None</option>
+        <option value="none">Neither</option>
         <option value="glasses">Glasses</option>
-        <option value="contacts">Contact lenses</option>
+        <option value="contacts">Contacts</option>
       </select>
     </div>
     <div>
-      <label>PPG Interference (Wrist tattoos/scars)</label>
+      <label>Any tattoos or scars on your non-dominant inner wrist?</label>
       <select id="ctx-wrist">
         <option value="">-- Select --</option>
-        <option value="no">Clear</option>
-        <option value="yes">Present</option>
+        <option value="no">No</option>
+        <option value="yes">Yes</option>
       </select>
     </div>
   </div>
 
-  <label>Operator Notes</label>
-  <textarea id="ctx-notes" placeholder="Enter environmental or subject anomalies..."></textarea>
+  <label>Anything else you want to note for the researcher? (optional)</label>
+  <textarea id="ctx-notes"></textarea>
 
-  <button class="btn" id="btn-goto-instructions">Commit Context & Proceed</button>
+  <button class="btn" id="btn-goto-instructions">Continue</button>
   <div id="context-error" class="error"></div>
 </div>
 
 
 <!-- ============================================================ -->
-<!-- SCREEN 3: TASK INSTRUCTIONS                                  -->
+<!-- SCREEN 3: PRE-TASK CONFIRMATION                              -->
 <!-- ============================================================ -->
 <div class="screen hidden" id="screen-instructions">
-  <h1>System Instructions <span class="session-badge" id="inst-session-badge">M1</span></h1>
-  <p class="subtitle">Please read carefully before engaging the simulation.</p>
+  <h1>Ready to start <span class="session-badge" id="inst-session-badge">M1</span></h1>
 
-  <h2>Simulation Protocol</h2>
+  <h2>What will happen</h2>
   <ol>
-    <li>A 10-minute highway driving telemetry feed will display.</li>
-    <li>Audio cues (<strong>BEEPS</strong>) will trigger randomly.</li>
-    <li>Upon audio cue, engage the <strong>BRAKE PEDAL</strong> instantly.</li>
-    <li>Log your fatigue level using the KSS dashboard at the bottom. Update it immediately if your state shifts.</li>
-    <li>Ensure the Camera and HRV indicators remain GREEN/BLUE.</li>
+    <li>A highway driving video will play in the top-left of the screen.</li>
+    <li>Watch the video normally — imagine you are driving.</li>
+    <li>Every few seconds you will hear a short <strong>beep</strong>.</li>
+    <li>When you hear a beep, click the big <strong>BRAKE pedal</strong> on the right as fast as you can.</li>
+    <li>Throughout the session, click your current <strong>KSS rating</strong> (1-9) using the buttons at the bottom. Click again whenever your state changes — especially right after each beep.</li>
+    <li>The session runs for 40 minutes.</li>
   </ol>
 
-  <h2>Constraints</h2>
-  <ul>
-    <li>Maintain non-dominant hand (sensor wrist) completely static.</li>
-    <li>Do not anticipate audio cues. React only to the stimulus.</li>
-    <li>No verbal communication or secondary device usage.</li>
-  </ul>
-
+  <h2>Researcher checklist — confirm before starting</h2>
   <div class="warn">
-    <strong>OPERATOR CHECK:</strong> Verify `hrv_realtime_pipeline.py` and visual tracking nodes are active before execution.
+    Before clicking Start, the researcher must verify both parallel systems are running.
   </div>
 
-  <button class="btn" id="btn-start-task">Engage Simulation</button>
+  <div class="confirm-row">
+    <button class="confirm-btn" id="confirm-hrv">
+      <span class="confirm-icon">📡</span>
+      HRV Pipeline is running<br>
+      <small style="opacity: 0.7">click when confirmed</small>
+    </button>
+    <button class="confirm-btn" id="confirm-cam">
+      <span class="confirm-icon">📷</span>
+      Camera System is running<br>
+      <small style="opacity: 0.7">click when confirmed</small>
+    </button>
+  </div>
+
+  <button class="btn" id="btn-start-task" disabled>Start session</button>
+  <p class="subtitle" style="margin-top: 12px;">Both confirmations required to enable Start.</p>
+  <p class="subtitle" style="margin-top: 6px; font-size: 12px;">
+    Tip: append <code style="background: var(--panel-light); padding: 2px 6px; border-radius: 4px;">?test=1</code> to the URL to run a 30-second test mode instead of 10 minutes.
+  </p>
 </div>
 
 
 <!-- ============================================================ -->
-<!-- SCREEN 4: TASK (LIVE HUD)                                    -->
+<!-- SCREEN 4: TASK                                               -->
 <!-- ============================================================ -->
 <div class="screen hidden" id="screen-task">
-  <div class="task-topbar">
-    <div class="status-badge">
-      <div class="status-dot" id="cam-dot"></div>
-      <span>OPTICAL</span>
+  <div class="task-header">
+    <div class="task-header-left">
+      <span class="task-id-badge" id="task-id-badge">P01 · M1</span>
+      <span class="test-mode-badge hidden" id="test-mode-badge">TEST MODE</span>
+      <div class="status-indicator">
+        <span class="status-dot"></span> HRV Pipeline
+      </div>
+      <div class="status-indicator">
+        <span class="status-dot"></span> Camera
+      </div>
     </div>
-    <div class="status-badge hrv">
-      <div class="status-dot" id="hrv-dot"></div>
-      <span>BIOMETRIC</span>
-    </div>
-    <div class="task-spacer"></div>
-    <div class="task-participant" id="task-participant">ID: P—</div>
-    <div class="task-timer" id="task-timer">T-MINUS 00:00 / 10:00</div>
-    <button class="finish-btn" id="btn-finish-early">ABORT</button>
+    <div class="task-timer" id="task-timer">0:00</div>
   </div>
-
-  <div class="beep-flash" id="beep-flash"></div>
 
   <div class="task-main">
     <div class="video-panel">
-      <video id="task-video" playsinline>
+      <video id="task-video" playsinline muted>
         <source src="highway.mp4" type="video/mp4">
       </video>
     </div>
-
-    <div class="pedal-panel">
-      <div class="pedal-hint">AWAITING AUDIO STIMULUS</div>
-      <button class="brake-pedal" id="brake-btn">
-        <div class="pedal-shape">
-          <div class="pedal-label">BRAKE</div>
-        </div>
-      </button>
+    <div class="brake-panel">
+      <button class="brake-pedal" id="brake-btn">BRAKE</button>
+      <div class="brake-label">Click when you hear a beep</div>
     </div>
   </div>
 
-  <div class="kss-row">
-    <div class="kss-row-header">
-      <div class="kss-row-label">BIOMETRIC SELF-REPORT (KSS) <span style="opacity:0.6; font-weight: normal; margin-left:10px;">Update continuously as state degrades</span></div>
-      <div class="kss-row-current" id="kss-current-display">STATE: UNCALIBRATED</div>
+  <div class="kss-strip">
+    <div class="kss-strip-title">How sleepy do you feel right now?</div>
+    <div class="kss-buttons-row" id="kss-buttons">
+      <!-- populated by JS -->
     </div>
-    <div class="kss-buttons-inline" id="kss-buttons-inline"></div>
+    <div class="kss-current" id="kss-current">Current rating: <strong>—</strong> · click a button to log</div>
   </div>
 
-  <!-- Start KSS overlay -->
-  <div class="start-kss-overlay hidden" id="start-kss-overlay">
-    <h2 id="start-kss-prompt">ESTABLISH BASELINE COGNITIVE STATE</h2>
-    <div class="start-kss-grid" id="start-kss-grid"></div>
-  </div>
-
-  <!-- Countdown overlay -->
-  <div class="countdown-overlay hidden" id="countdown-overlay">
-    <div class="countdown-num" id="countdown-num">3</div>
-    <div class="countdown-label">INITIALIZING SEQUENCE...</div>
-  </div>
+  <button class="exit-btn" id="exit-btn">End session</button>
 </div>
 
 
@@ -623,54 +635,59 @@ textarea { min-height: 80px; resize: vertical; }
 <!-- SCREEN 5: END + DOWNLOAD                                     -->
 <!-- ============================================================ -->
 <div class="screen hidden" id="screen-end">
-  <h1>Simulation Terminated</h1>
-  <p class="subtitle">Data packaging complete.</p>
+  <h1>Session complete</h1>
+  <p>Thank you for participating. Session data is ready to be saved.</p>
 
-  <h2>Telemetry Summary</h2>
+  <h2>Summary</h2>
   <ul>
-    <li id="end-participant">Participant ID: —</li>
-    <li id="end-session">Sequence: —</li>
-    <li id="end-start">Timestamp (Start): —</li>
-    <li id="end-duration">Duration: —</li>
-    <li id="end-beeps">Stimuli: — total, — logged, — ignored</li>
-    <li id="end-mean-rt">Mean Latency: — ms</li>
-    <li id="end-kss">State Shifts Logged: —</li>
+    <li id="end-participant">Participant: —</li>
+    <li id="end-session">Session: —</li>
+    <li id="end-start">Session start time: —</li>
+    <li id="end-duration">Task duration: —</li>
+    <li id="end-beeps">Beeps: —</li>
+    <li id="end-mean-rt">Mean reaction time: —</li>
+    <li id="end-kss">KSS ratings logged: —</li>
   </ul>
 
-  <div class="info">
-    <strong>Operator:</strong> Download the JSON telemetry payload and cross-reference timestamps with the local Python server logs. Terminate sensor feeds.
+  <div class="warn">
+    <strong>Researcher action required:</strong>
+    <ol>
+      <li>Click the download button below and save the JSON file.</li>
+      <li>Copy the session start timestamp shown above.</li>
+      <li>Stop the HRV pipeline and camera system.</li>
+      <li>Cross-reference the timestamp in your HRV log.</li>
+    </ol>
   </div>
 
-  <button class="btn btn-download" id="btn-download">EXPORT TELEMETRY (JSON)</button>
+  <button class="btn btn-download" id="btn-download">Download session data (JSON)</button>
   <br>
-  <button class="btn btn-secondary" id="btn-restart" style="margin-top: 15px;">INITIALIZE NEW SUBJECT</button>
+  <button class="btn btn-secondary" id="btn-restart">Start a new session</button>
 </div>
 
 
 <script>
 // =============================================================================
-// STATE & LOGIC (Untouched core logic)
+// TEST MODE — reduces task duration to 30 sec for testing
 // =============================================================================
-const STATE = {
-  participantId: null,
-  session: null,
-  startWallClock: null,
-  startPerf: null,
-  taskDurationSec: 600,
-  consent: {},
-  context: {},
-  kssEvents: [],       // {timestamp_ms, value: 1-9, phase: 'start'|'during'|'end'}
-  currentKss: null,    // most recent KSS value
-  beeps: [],           // {beep_time_ms, click_time_ms, reaction_time_ms}
-  falseClicks: [],
-};
+const TEST_MODE = new URLSearchParams(window.location.search).get('test') === '1';
+const TASK_DURATION_SEC = TEST_MODE ? 30 : 2400;  // 40 min = 2400 sec (matches UL-DD)
 
-const BEEP_SCHEDULE_SEC = [
-  15, 28, 44, 57, 72, 88, 103, 118, 135, 152,
-  168, 183, 199, 217, 234, 250, 265, 282, 298, 315,
-  330, 344, 361, 378, 394, 410, 427, 443, 459, 476,
-  492, 507, 523, 540, 556, 570, 583, 594,
-];
+// Beep schedule — deterministic, same for every participant + session at a given duration.
+// Uses a seeded PRNG so the schedule is reproducible across all sessions.
+// For 40 min: ~79 beeps, avg interval ~30 sec (range 15-45 sec).
+function generateBeepSchedule(durationSec, seed = 12345) {
+  let s = seed;
+  const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+  const schedule = [];
+  let t = 15;
+  while (t < durationSec - 20) {
+    schedule.push(Math.round(t));
+    t += 15 + rand() * 30;  // interval 15-45 sec
+  }
+  return schedule;
+}
+const BEEP_SCHEDULE_TEST = [5, 12, 22];
+const BEEP_SCHEDULE_SEC = TEST_MODE ? BEEP_SCHEDULE_TEST : generateBeepSchedule(TASK_DURATION_SEC);
 
 const KSS_LABELS = [
   { num: 1, label: 'Extremely alert' },
@@ -683,6 +700,24 @@ const KSS_LABELS = [
   { num: 8, label: 'Struggling' },
   { num: 9, label: 'Fighting sleep' },
 ];
+
+// =============================================================================
+// STATE
+// =============================================================================
+const STATE = {
+  participantId: null,
+  session: null,
+  startWallClock: null,
+  startPerf: null,
+  taskDurationSec: TASK_DURATION_SEC,
+  testMode: TEST_MODE,
+  consent: {},
+  context: {},
+  kssClicks: [],           // every KSS click logged with timestamp
+  beeps: [],               // per-beep records
+  falseClicks: [],         // brake clicks with no active beep
+  researcher_confirmed: { hrv: false, camera: false },
+};
 
 let audioCtx = null;
 function initAudio() {
@@ -706,47 +741,55 @@ function playBeep() {
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
-  document.body.classList.toggle('task-mode', id === 'screen-task');
   window.scrollTo(0, 0);
 }
 
-// SCREEN 1 -> 2
+// =============================================================================
+// SCREEN 1: INTRO
+// =============================================================================
 document.getElementById('btn-goto-context').addEventListener('click', () => {
-  const c = ['c1','c2','c3','c5'].every(id => document.getElementById(id).checked);
+  const c1 = document.getElementById('c1').checked;
+  const c2 = document.getElementById('c2').checked;
+  const c3 = document.getElementById('c3').checked;
   const c4 = document.getElementById('c4').checked;
+  const c5 = document.getElementById('c5').checked;
   const pid = document.getElementById('participant-id').value.trim();
   const session = document.getElementById('session-tag').value;
+
   const errEl = document.getElementById('intro-error');
   errEl.textContent = '';
 
-  if (!document.getElementById('c1').checked) return errEl.textContent = 'Acknowledge information to proceed.';
-  if (!document.getElementById('c2').checked) return errEl.textContent = 'Physiological consent is mandatory.';
-  if (!document.getElementById('c3').checked) return errEl.textContent = 'Data transfer consent is mandatory.';
-  if (!document.getElementById('c5').checked) return errEl.textContent = 'Acknowledge voluntariness.';
-  if (!pid) return errEl.textContent = 'Input Participant ID.';
-  if (!session) return errEl.textContent = 'Select a Session Sequence.';
+  if (!c1) return errEl.textContent = 'Please confirm you have read and understood the information.';
+  if (!c2) return errEl.textContent = 'Consent to data collection is required.';
+  if (!c3) return errEl.textContent = 'Consent to data transfer is required.';
+  if (!c5) return errEl.textContent = 'Please acknowledge the voluntary participation statement.';
+  if (!pid) return errEl.textContent = 'Please enter a participant ID.';
+  if (!session) return errEl.textContent = 'Please select a session (M1/M2/M3).';
 
   STATE.participantId = pid;
   STATE.session = session;
-  STATE.consent = { info_read: true, primary: true, cross_border: true, camera_raw_video: c4, voluntariness: true };
+  STATE.consent = { info_read: c1, primary: c2, cross_border: c3, camera_raw_video: c4, voluntariness: c5 };
 
   document.getElementById('ctx-session-badge').textContent = session;
   document.getElementById('inst-session-badge').textContent = session;
-  document.getElementById('task-participant').textContent = `ID: ${pid} // ${session}`;
+  document.getElementById('task-id-badge').textContent = `${pid} · ${session}`;
   showScreen('screen-context');
 });
 
-// SCREEN 2 -> 3
+// =============================================================================
+// SCREEN 2: CONTEXT
+// =============================================================================
 document.getElementById('ctx-beta-blockers').addEventListener('change', (e) => {
   document.getElementById('beta-warn').style.display = (e.target.value === 'yes') ? 'block' : 'none';
 });
-
 document.getElementById('btn-goto-instructions').addEventListener('click', () => {
   const errEl = document.getElementById('context-error');
   errEl.textContent = '';
   const beta = document.getElementById('ctx-beta-blockers').value;
-  if (!beta) return errEl.textContent = 'Beta-blocker status required.';
+  if (!beta) return errEl.textContent = 'Please answer the beta-blocker question.';
+  if (beta === 'yes') return errEl.textContent = 'This study excludes participants on beta-blockers.';
   const wellbeing = document.getElementById('ctx-wellbeing').value;
+  if (wellbeing === 'unwell') return errEl.textContent = 'If unwell, please reschedule.';
 
   STATE.context = {
     sleep_hours: document.getElementById('ctx-sleep-hours').value,
@@ -765,125 +808,114 @@ document.getElementById('btn-goto-instructions').addEventListener('click', () =>
   showScreen('screen-instructions');
 });
 
-// SCREEN 3 -> 4
+// =============================================================================
+// SCREEN 3: INSTRUCTIONS + RESEARCHER CONFIRMATIONS
+// =============================================================================
+document.getElementById('confirm-hrv').addEventListener('click', (e) => {
+  e.currentTarget.classList.toggle('confirmed');
+  STATE.researcher_confirmed.hrv = e.currentTarget.classList.contains('confirmed');
+  updateStartButton();
+});
+document.getElementById('confirm-cam').addEventListener('click', (e) => {
+  e.currentTarget.classList.toggle('confirmed');
+  STATE.researcher_confirmed.camera = e.currentTarget.classList.contains('confirmed');
+  updateStartButton();
+});
+function updateStartButton() {
+  const both = STATE.researcher_confirmed.hrv && STATE.researcher_confirmed.camera;
+  document.getElementById('btn-start-task').disabled = !both;
+}
+
 document.getElementById('btn-start-task').addEventListener('click', () => {
   initAudio();
+  if (TEST_MODE) document.getElementById('test-mode-badge').classList.remove('hidden');
   showScreen('screen-task');
-  showStartKssOverlay();
+  startTask();
 });
 
-// TASK LOGIC
+// =============================================================================
+// SCREEN 4: TASK
+// =============================================================================
 const brakeBtn = document.getElementById('brake-btn');
-const brakeFlash = document.getElementById('beep-flash');
-const kssRow = document.getElementById('kss-buttons-inline');
-const startKssOverlay = document.getElementById('start-kss-overlay');
-const startKssGrid = document.getElementById('start-kss-grid');
-const startKssPrompt = document.getElementById('start-kss-prompt');
-const countdownOverlay = document.getElementById('countdown-overlay');
-const countdownNum = document.getElementById('countdown-num');
+const kssButtonsEl = document.getElementById('kss-buttons');
+const kssCurrentEl = document.getElementById('kss-current');
 const taskTimer = document.getElementById('task-timer');
 const taskVideo = document.getElementById('task-video');
-const kssCurrentDisplay = document.getElementById('kss-current-display');
+const exitBtn = document.getElementById('exit-btn');
 
 let beepIdx = 0;
 let pendingBeepTime = null;
-let hudInterval = null;
+let currentKssSelection = null;
+let timerInterval = null;
 let scheduleInterval = null;
 let taskEnded = false;
-let taskStarted = false;
-let currentKssPhase = 'start';
 
+// Populate KSS buttons
 KSS_LABELS.forEach(k => {
-  const b = document.createElement('button');
-  b.className = 'kss-btn-inline';
-  b.setAttribute('data-value', k.num);
-  b.innerHTML = `<span class="kss-num">${k.num}</span><span class="kss-label">${k.label}</span>`;
-  b.addEventListener('click', () => onInlineKssClick(k.num));
-  kssRow.appendChild(b);
+  const btn = document.createElement('button');
+  btn.className = 'kss-btn';
+  btn.dataset.value = k.num;
+  btn.innerHTML = `<span class="kss-num">${k.num}</span><span class="kss-label">${k.label}</span>`;
+  btn.addEventListener('click', () => onKssClick(k.num));
+  kssButtonsEl.appendChild(btn);
 });
 
-KSS_LABELS.forEach(k => {
-  const b = document.createElement('button');
-  b.className = 'start-kss-btn';
-  b.setAttribute('data-value', k.num);
-  b.innerHTML = `<span class="n">${k.num}</span><span class="l">${k.label}</span>`;
-  b.addEventListener('click', () => onStartKssClick(k.num));
-  startKssGrid.appendChild(b);
-});
-
-function showStartKssOverlay() {
-  currentKssPhase = 'start';
-  startKssPrompt.textContent = 'ESTABLISH BASELINE COGNITIVE STATE';
-  startKssOverlay.classList.remove('hidden');
-}
-
-function onStartKssClick(value) {
-  STATE.kssEvents.push({ timestamp_ms: 0, value: value, phase: 'start' });
-  STATE.currentKss = value;
-  markSelectedKss(value);
-  updateKssDisplay();
-  startKssOverlay.classList.add('hidden');
-  startCountdown();
-}
-
-function startCountdown() {
-  countdownOverlay.classList.remove('hidden');
-  let n = 3;
-  countdownNum.textContent = n;
-  const iv = setInterval(() => {
-    n--;
-    if (n > 0) { countdownNum.textContent = n; } 
-    else if (n === 0) { countdownNum.textContent = 'ENGAGE'; } 
-    else { clearInterval(iv); countdownOverlay.classList.add('hidden'); beginTask(); }
-  }, 1000);
-}
-
-function beginTask() {
+function startTask() {
   STATE.startWallClock = new Date().toISOString();
   STATE.startPerf = performance.now();
-  beepIdx = 0; pendingBeepTime = null; taskEnded = false; taskStarted = true; currentKssPhase = 'during';
-  
-  taskVideo.play().catch(err => { console.log('Video play error'); });
-  taskVideo.addEventListener('ended', () => { if (!taskEnded) endTask(); });
+  STATE.kssClicks = [];
+  STATE.beeps = [];
+  STATE.falseClicks = [];
+  beepIdx = 0;
+  pendingBeepTime = null;
+  taskEnded = false;
 
-  hudInterval = setInterval(updateHud, 250);
+  // Unmute the video (was muted for autoplay policy compliance)
+  taskVideo.muted = false;
+  taskVideo.play().catch(err => {
+    console.warn('Video autoplay failed. Continuing without video for testing.', err);
+  });
+
+  timerInterval = setInterval(updateTimer, 250);
   scheduleInterval = setInterval(scheduleTick, 100);
 }
 
-function updateHud() {
-  if (!taskStarted) return;
+function updateTimer() {
   const elapsedSec = (performance.now() - STATE.startPerf) / 1000;
-  const m = Math.floor(elapsedSec / 60).toString().padStart(2, '0');
+  const m = Math.floor(elapsedSec / 60);
   const s = Math.floor(elapsedSec % 60).toString().padStart(2, '0');
-  taskTimer.textContent = `T-PLUS ${m}:${s} / 10:00`;
+  taskTimer.textContent = `${m}:${s}`;
 }
 
 function scheduleTick() {
-  if (taskEnded || !taskStarted) return;
+  if (taskEnded) return;
   const elapsedSec = (performance.now() - STATE.startPerf) / 1000;
   while (beepIdx < BEEP_SCHEDULE_SEC.length && elapsedSec >= BEEP_SCHEDULE_SEC[beepIdx]) {
     triggerBeep();
     beepIdx++;
   }
-  if (elapsedSec >= STATE.taskDurationSec) { endTask(); }
+  if (elapsedSec >= STATE.taskDurationSec) endTask();
 }
 
 function triggerBeep() {
   playBeep();
   const now = performance.now();
   pendingBeepTime = now;
-  STATE.beeps.push({ beep_time_ms: now - STATE.startPerf, click_time_ms: null, reaction_time_ms: null });
-  
-  brakeBtn.classList.remove('pulse');
-  void brakeBtn.offsetWidth; 
-  brakeBtn.classList.add('pulse');
-  brakeFlash.classList.remove('active');
-  void brakeFlash.offsetWidth;
-  brakeFlash.classList.add('active');
+  STATE.beeps.push({
+    beep_time_ms: now - STATE.startPerf,
+    click_time_ms: null,
+    reaction_time_ms: null,
+    kss_at_beep: currentKssSelection,
+  });
+  // Visual pulse on brake
+  brakeBtn.classList.remove('beep-active');
+  void brakeBtn.offsetWidth;   // force reflow to restart animation
+  brakeBtn.classList.add('beep-active');
+  setTimeout(() => brakeBtn.classList.remove('beep-active'), 500);
 }
 
 brakeBtn.addEventListener('click', () => {
-  if (!taskStarted || taskEnded) return;
+  if (taskEnded) return;
   const now = performance.now();
   if (pendingBeepTime !== null) {
     const rt = now - pendingBeepTime;
@@ -892,62 +924,44 @@ brakeBtn.addEventListener('click', () => {
       beep.click_time_ms = now - STATE.startPerf;
       beep.reaction_time_ms = rt;
       pendingBeepTime = null;
+      brakeBtn.classList.add('pressed');
+      setTimeout(() => brakeBtn.classList.remove('pressed'), 150);
       return;
     }
   }
   STATE.falseClicks.push({ click_time_ms: now - STATE.startPerf });
+  brakeBtn.classList.add('pressed');
+  setTimeout(() => brakeBtn.classList.remove('pressed'), 150);
 });
 
-function onInlineKssClick(value) {
-  if (!taskStarted && currentKssPhase !== 'end') return;
-  const timestamp = taskStarted ? (performance.now() - STATE.startPerf) : 0;
-  STATE.kssEvents.push({ timestamp_ms: timestamp, value: value, phase: currentKssPhase });
-  STATE.currentKss = value;
-  markSelectedKss(value);
-  updateKssDisplay();
-  if (currentKssPhase === 'end') finalizeSession();
-}
-
-function markSelectedKss(value) {
-  document.querySelectorAll('.kss-btn-inline').forEach(b => {
-    b.classList.toggle('selected', parseInt(b.dataset.value) === value);
-  });
-}
-
-function updateKssDisplay() {
-  if (STATE.currentKss === null) { kssCurrentDisplay.textContent = 'STATE: UNCALIBRATED'; } 
-  else {
-    const label = KSS_LABELS[STATE.currentKss - 1].label;
-    kssCurrentDisplay.textContent = `STATE LOGGED: ${STATE.currentKss} (${label})`;
-  }
+function onKssClick(value) {
+  if (taskEnded) return;
+  const now = performance.now();
+  const timestamp_ms = STATE.startPerf ? now - STATE.startPerf : 0;
+  STATE.kssClicks.push({ timestamp_ms, value });
+  currentKssSelection = value;
+  // Visual selected state
+  kssButtonsEl.querySelectorAll('.kss-btn').forEach(b => b.classList.remove('selected'));
+  kssButtonsEl.querySelector(`.kss-btn[data-value="${value}"]`).classList.add('selected');
+  kssCurrentEl.innerHTML = `Current rating: <strong>${value} — ${KSS_LABELS[value-1].label}</strong> · logged ${STATE.kssClicks.length} times`;
 }
 
 function endTask() {
   if (taskEnded) return;
-  taskEnded = true; taskStarted = false;
-  clearInterval(hudInterval); clearInterval(scheduleInterval);
+  taskEnded = true;
+  clearInterval(timerInterval);
+  clearInterval(scheduleInterval);
   taskVideo.pause();
-  currentKssPhase = 'end';
-  
-  startKssPrompt.textContent = 'TERMINAL RATING: LOG FINAL STATE';
-  startKssOverlay.classList.remove('hidden');
-  startKssGrid.querySelectorAll('.start-kss-btn').forEach(b => {
-    const newBtn = b.cloneNode(true);
-    b.parentNode.replaceChild(newBtn, b);
-    newBtn.addEventListener('click', () => onFinalKssClick(parseInt(newBtn.dataset.value)));
-  });
-}
-
-function onFinalKssClick(value) {
-  const timestamp = STATE.startPerf ? (performance.now() - STATE.startPerf) : 0;
-  STATE.kssEvents.push({ timestamp_ms: timestamp, value: value, phase: 'end' });
-  STATE.currentKss = value;
-  startKssOverlay.classList.add('hidden');
   finalizeSession();
 }
 
-document.getElementById('btn-finish-early').addEventListener('click', () => {
-  if (confirm('MANUAL OVERRIDE: Abort session?')) { endTask(); }
+exitBtn.addEventListener('click', () => {
+  if (confirm('End session now? Data collected so far will be saved.')) endTask();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && !taskEnded && !document.getElementById('screen-task').classList.contains('hidden')) {
+    if (confirm('End session now? Data collected so far will be saved.')) endTask();
+  }
 });
 
 function finalizeSession() {
@@ -955,7 +969,9 @@ function finalizeSession() {
   showScreen('screen-end');
 }
 
-// SCREEN 5
+// =============================================================================
+// SCREEN 5: END
+// =============================================================================
 function populateEndScreen() {
   const totalBeeps = STATE.beeps.length;
   const responded = STATE.beeps.filter(b => b.reaction_time_ms !== null).length;
@@ -963,14 +979,13 @@ function populateEndScreen() {
   const rts = STATE.beeps.filter(b => b.reaction_time_ms !== null).map(b => b.reaction_time_ms);
   const meanRt = rts.length ? Math.round(rts.reduce((a,b) => a+b, 0) / rts.length) : null;
 
-  document.getElementById('end-participant').textContent = `Subject ID: ${STATE.participantId}`;
-  document.getElementById('end-session').textContent = `Sequence: ${STATE.session}`;
-  document.getElementById('end-start').textContent = `Timestamp (Start): ${STATE.startWallClock || '(Not Executed)'}`;
-  const durSec = STATE.startPerf ? Math.round((performance.now() - STATE.startPerf) / 1000) : 0;
-  document.getElementById('end-duration').textContent = `Duration: ${durSec} seconds`;
-  document.getElementById('end-beeps').textContent = `Stimuli: ${totalBeeps} total, ${responded} logged, ${missed} missed, ${STATE.falseClicks.length} false triggers`;
-  document.getElementById('end-mean-rt').textContent = `Mean Latency: ${meanRt !== null ? meanRt + ' ms' : '(N/A)'}`;
-  document.getElementById('end-kss').textContent = `State Shifts Logged: ${STATE.kssEvents.length} events (${STATE.kssEvents.map(k=>k.value).join(', ')})`;
+  document.getElementById('end-participant').textContent = `Participant: ${STATE.participantId}`;
+  document.getElementById('end-session').textContent = `Session: ${STATE.session}${STATE.testMode ? ' (TEST MODE)' : ''}`;
+  document.getElementById('end-start').textContent = `Session start time: ${STATE.startWallClock}`;
+  document.getElementById('end-duration').textContent = `Task duration: ${STATE.taskDurationSec} seconds`;
+  document.getElementById('end-beeps').textContent = `Beeps: ${totalBeeps} total, ${responded} responded, ${missed} missed, ${STATE.falseClicks.length} false clicks`;
+  document.getElementById('end-mean-rt').textContent = `Mean reaction time: ${meanRt !== null ? meanRt + ' ms' : '(none)'}`;
+  document.getElementById('end-kss').textContent = `KSS ratings logged: ${STATE.kssClicks.length} clicks — final: ${currentKssSelection ?? '—'}`;
 }
 
 document.getElementById('btn-download').addEventListener('click', () => {
@@ -981,14 +996,16 @@ document.getElementById('btn-download').addEventListener('click', () => {
   const medianRt = rts.length ? [...rts].sort((a,b)=>a-b)[Math.floor(rts.length/2)] : null;
 
   const output = {
-    schema_version: '3.0_HUD',
+    schema_version: '2.0',
     participant_id: STATE.participantId,
     session: STATE.session,
+    test_mode: STATE.testMode,
     start_wall_clock_iso: STATE.startWallClock,
     task_duration_sec: STATE.taskDurationSec,
     consent: STATE.consent,
+    researcher_confirmed: STATE.researcher_confirmed,
     context: STATE.context,
-    kss_events: STATE.kssEvents,
+    kss_clicks: STATE.kssClicks,
     beeps: STATE.beeps,
     false_clicks: STATE.falseClicks,
     beep_schedule_sec: BEEP_SCHEDULE_SEC,
@@ -997,14 +1014,14 @@ document.getElementById('btn-download').addEventListener('click', () => {
       n_responded: responded,
       n_missed: totalBeeps - responded,
       n_false_clicks: STATE.falseClicks.length,
+      n_kss_clicks: STATE.kssClicks.length,
+      final_kss: currentKssSelection,
       mean_reaction_time_ms: meanRt,
       median_reaction_time_ms: medianRt,
-      n_kss_events: STATE.kssEvents.length,
     },
   };
 
-  const safeIso = (STATE.startWallClock || 'nostart').replace(/[:.]/g, '-');
-  const filename = `${STATE.participantId}_${STATE.session}_${safeIso}_telemetry.json`;
+  const filename = `${STATE.participantId}_${STATE.session}_${STATE.startWallClock.replace(/[:.]/g, '-')}_behavior.json`;
   const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1017,7 +1034,7 @@ document.getElementById('btn-download').addEventListener('click', () => {
 });
 
 document.getElementById('btn-restart').addEventListener('click', () => {
-  if (confirm('Wipe current buffer and initialize new subject?')) { location.reload(); }
+  if (confirm('Start a new session? This will reset all data on this page.')) location.reload();
 });
 </script>
 
