@@ -4,243 +4,728 @@
 <meta charset="UTF-8">
 <title>VITAL Drowsiness Detection Study — India</title>
 <style>
+
+/* ============================================================================
+   VITAL Study — Apple Liquid Glass Design System
+   ============================================================================
+   Preserves all IDs, classes, and event handlers from the previous version.
+   Only visual style changes. All JS logic remains intact.
+   ============================================================================ */
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
 :root {
-  --bg: #0f1420;
-  --panel: #1a2032;
-  --panel-light: #232a3f;
-  --border: #2d3548;
-  --text: #e5e7eb;
-  --text-dim: #9ca3af;
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
-  --success: #10b981;
-  --warn: #f59e0b;
-  --danger: #ef4444;
-  --danger-dark: #991b1b;
+  /* Background */
+  --bg-base: #ffffff;
+  --bg-tint: #ffffff;
+
+  /* Glass surfaces */
+  --glass-thin: rgba(255, 255, 255, 0.12);
+  --glass: rgba(255, 255, 255, 0.18);
+  --glass-heavy: rgba(255, 255, 255, 0.28);
+  --glass-input: rgba(255, 255, 255, 0.22);
+  --glass-dark: rgba(20, 25, 40, 0.55);
+  --glass-dark-heavy: rgba(20, 25, 40, 0.75);
+
+  /* Borders — subtle translucent */
+  --border-glass: rgba(255, 255, 255, 0.35);
+  --border-strong: rgba(255, 255, 255, 0.6);
+  --border-dark: rgba(255, 255, 255, 0.12);
+
+  /* Text */
+  --text: #111;
+  --text-secondary: #555;
+  --text-tertiary: #8a8a8f;
+  --text-inv: #f5f5f7;
+
+  /* Semantic colors — iOS-native palette */
+  --accent: #0A84FF;
+  --accent-hover: #0071e3;
+  --success: #34C759;
+  --warn: #FF9500;
+  --danger: #FF3B30;
+
+  /* Layered soft shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.1), 0 6px 12px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 0 4px rgba(10, 132, 255, 0.15);
+
+  /* Radii */
+  --r-sm: 12px;
+  --r-md: 20px;
+  --r-lg: 28px;
+  --r-pill: 999px;
+
+  /* Motion — Apple-style spring easings */
+  --ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 200ms;
+  --dur: 280ms;
+  --dur-slow: 350ms;
+}
+
+/* -------------------------------------------------------------------------
+   Base layout + ambient background with floating color orbs
+   ------------------------------------------------------------------------- */
+html, body {
+  min-height: 100%;
 }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: linear-gradient(135deg, #0f1420 0%, #1a2032 100%);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", "Inter", Roboto, sans-serif;
+  background: var(--bg-base);
   color: var(--text);
-  min-height: 100vh;
-  padding: 24px;
+  padding: clamp(16px, 3vw, 32px);
   line-height: 1.55;
+  position: relative;
+  overflow-x: hidden;
+  min-height: 100vh;
 }
+/* Ambient blurred color orbs give backdrop-filter something to work on */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: #ffffff;
+  z-index: -2;
+  pointer-events: none;
+}
+@keyframes ambient-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(-2%, -1%, 0) scale(1.05); }
+}
+
+/* -------------------------------------------------------------------------
+   Screen (glass card container)
+   ------------------------------------------------------------------------- */
 .screen {
   max-width: 900px;
   margin: 0 auto;
-  background: var(--panel);
-  padding: 40px;
-  border-radius: 16px;
-  border: 1px solid var(--border);
-  box-shadow: 0 20px 40px -12px rgba(0,0,0,0.4);
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  padding: clamp(28px, 4vw, 48px);
+  border-radius: var(--r-lg);
+  border: 1px solid rgba(220, 224, 232, 0.9);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.06),
+    0 8px 24px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.03);
+  position: relative;
+  overflow: hidden;
+}
+/* Thin highlight along the top of glass cards — Apple's signature detail */
+.screen::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
+  pointer-events: none;
 }
 .hidden { display: none !important; }
-h1 { font-size: 26px; margin-bottom: 8px; color: var(--text); font-weight: 700; }
-h2 { font-size: 18px; margin-top: 28px; margin-bottom: 12px; color: var(--text); font-weight: 600; }
-h3 { font-size: 15px; margin-top: 16px; margin-bottom: 6px; color: var(--text); }
-p, li { font-size: 14px; margin-bottom: 8px; color: var(--text-dim); }
-p strong, li strong { color: var(--text); }
-ul, ol { padding-left: 22px; margin-bottom: 12px; }
-.subtitle { color: var(--text-dim); font-size: 14px; margin-bottom: 24px; }
 
-label { display: block; margin: 12px 0 6px; font-size: 14px; font-weight: 500; color: var(--text); }
-input[type=text], input[type=number], select, textarea {
-  width: 100%; padding: 10px 12px; font-size: 14px;
-  background: var(--panel-light); border: 1px solid var(--border);
-  color: var(--text); border-radius: 8px; font-family: inherit;
-  transition: border 0.15s;
-}
-input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
-textarea { min-height: 60px; resize: vertical; }
-
-.checkbox-row {
-  display: flex; align-items: start; gap: 12px; margin: 10px 0;
-  padding: 12px; background: var(--panel-light); border-radius: 8px;
-  border: 1px solid var(--border);
-  transition: border 0.2s;
-}
-.checkbox-row:has(input:checked) { border-color: var(--success); }
-.checkbox-row input[type=checkbox] {
-  margin-top: 3px; flex-shrink: 0;
-  width: 18px; height: 18px; accent-color: var(--accent);
-}
-.checkbox-row label { margin: 0; font-weight: normal; color: var(--text-dim); }
-.checkbox-row label strong { color: var(--text); }
-
-.btn {
-  background: var(--accent); color: white; padding: 12px 24px;
-  border: none; border-radius: 8px; font-size: 15px;
-  cursor: pointer; margin-top: 20px; font-weight: 600;
-  transition: all 0.15s; font-family: inherit;
-}
-.btn:hover { background: var(--accent-hover); transform: translateY(-1px); }
-.btn:active { transform: translateY(0); }
-.btn:disabled { background: #4b5563; cursor: not-allowed; transform: none; }
-.btn-secondary { background: #4b5563; }
-.btn-secondary:hover { background: #6b7280; }
-.btn-download { background: var(--success); padding: 16px 32px; font-size: 16px; }
-.btn-download:hover { background: #059669; }
-
-.kss-table { margin: 12px 0; width: 100%; border-collapse: collapse; font-size: 13px; }
-.kss-table td { padding: 8px 12px; border: 1px solid var(--border); color: var(--text-dim); }
-.kss-table td:first-child {
-  text-align: center; font-weight: bold; width: 50px;
-  color: var(--text); background: var(--panel-light);
-}
-.warn {
-  background: rgba(245, 158, 11, 0.1); border-left: 4px solid var(--warn);
-  padding: 12px; margin: 12px 0; font-size: 13px; border-radius: 6px;
+/* -------------------------------------------------------------------------
+   Typography
+   ------------------------------------------------------------------------- */
+h1 {
+  font-size: clamp(24px, 3vw, 30px);
+  margin-bottom: 8px;
   color: var(--text);
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
-.info {
-  background: rgba(59, 130, 246, 0.1); border-left: 4px solid var(--accent);
-  padding: 12px; margin: 12px 0; font-size: 13px; border-radius: 6px;
+h2 {
+  font-size: 19px;
+  margin-top: 32px;
+  margin-bottom: 12px;
   color: var(--text);
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
-.session-badge {
-  display: inline-block; background: var(--accent); color: white;
-  padding: 4px 14px; border-radius: 20px; font-size: 13px; margin-left: 8px;
+h3 {
+  font-size: 15px;
+  margin-top: 16px;
+  margin-bottom: 6px;
+  color: var(--text);
   font-weight: 600;
 }
-.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.error { color: var(--danger); font-size: 13px; margin-top: 6px; }
+p, li {
+  font-size: 14.5px;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+}
+p strong, li strong { color: var(--text); font-weight: 600; }
+ul, ol { padding-left: 24px; margin-bottom: 12px; }
+.subtitle {
+  color: var(--text-tertiary);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
 
-/* Pre-task confirmation buttons */
+/* -------------------------------------------------------------------------
+   Form controls — glass inputs and selects
+   ------------------------------------------------------------------------- */
+label {
+  display: block;
+  margin: 14px 0 6px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: -0.005em;
+}
+input[type=text], input[type=number], select, textarea {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 15px;
+  background: rgba(248, 250, 253, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(210, 216, 226, 0.9);
+  color: var(--text);
+  border-radius: var(--r-sm);
+  font-family: inherit;
+  transition: all var(--dur) var(--ease);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 1px 2px rgba(0, 0, 0, 0.02);
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: rgba(10, 132, 255, 0.6);
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow:
+    0 0 0 4px rgba(10, 132, 255, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+textarea { min-height: 72px; resize: vertical; }
+select { cursor: pointer; }
+
+/* -------------------------------------------------------------------------
+   Checkbox rows — glass tiles that highlight when checked
+   ------------------------------------------------------------------------- */
+.checkbox-row {
+  display: flex;
+  align-items: start;
+  gap: 14px;
+  margin: 10px 0;
+  padding: 16px;
+  background: rgba(248, 250, 253, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(210, 216, 226, 0.9);
+  transition: all var(--dur) var(--ease);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 1px 2px rgba(0, 0, 0, 0.02);
+}
+.checkbox-row:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-strong);
+}
+.checkbox-row input[type=checkbox] {
+  margin-top: 3px;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.checkbox-row label {
+  margin: 0;
+  font-weight: 400;
+  color: var(--text-secondary);
+  cursor: pointer;
+  flex: 1;
+}
+.checkbox-row label strong { color: var(--text); font-weight: 600; }
+.checkbox-row:has(input:checked) {
+  border-color: rgba(52, 199, 89, 0.6);
+  background: rgba(52, 199, 89, 0.12);
+  box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.15), var(--shadow-xs);
+}
+.checkbox-row:has(input:checked) label { color: var(--text); }
+
+/* -------------------------------------------------------------------------
+   Buttons — pill shape, Apple Blue with soft glow
+   ------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------
+   Liquid glass button — tinted transparent surface with inner reflections
+   ------------------------------------------------------------------------- */
+.btn {
+  /* Tinted glass — see through to the blurred backdrop */
+  background: linear-gradient(180deg,
+    rgba(10, 132, 255, 0.75) 0%,
+    rgba(10, 132, 255, 0.9) 100%);
+  backdrop-filter: blur(25px) saturate(200%);
+  -webkit-backdrop-filter: blur(25px) saturate(200%);
+  color: white;
+  padding: 14px 32px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: var(--r-pill);
+  font-size: 15px;
+  cursor: pointer;
+  margin-top: 24px;
+  font-weight: 600;
+  transition: all var(--dur) var(--ease-spring);
+  font-family: inherit;
+  letter-spacing: -0.01em;
+  position: relative;
+  overflow: hidden;
+  /* Water reflections — top highlight + inner glow */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -1px 3px rgba(255, 255, 255, 0.3),
+    inset 0 0 30px rgba(255, 255, 255, 0.2),
+    0 8px 24px rgba(10, 132, 255, 0.35),
+    0 2px 6px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 1px 2px rgba(10, 60, 120, 0.4);
+}
+/* Glossy top-half reflection like water surface */
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 1px; left: 4px; right: 4px;
+  height: 45%;
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.35) 0%,
+    rgba(255, 255, 255, 0.05) 100%);
+  border-radius: var(--r-pill) var(--r-pill) 40% 40% / var(--r-pill) var(--r-pill) 60% 60%;
+  pointer-events: none;
+}
+/* Subtle bottom highlight */
+.btn::after {
+  content: '';
+  position: absolute;
+  bottom: 1px; left: 20%; right: 20%;
+  height: 20%;
+  background: radial-gradient(ellipse at center,
+    rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+  border-radius: 50%;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(180deg,
+    rgba(10, 132, 255, 0.85) 0%,
+    rgba(10, 132, 255, 1) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 3px rgba(255, 255, 255, 0.35),
+    inset 0 0 30px rgba(255, 255, 255, 0.25),
+    0 14px 32px rgba(10, 132, 255, 0.45),
+    0 4px 10px rgba(0, 0, 0, 0.12);
+}
+.btn:active {
+  transform: translateY(0);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 2px 6px rgba(10, 132, 255, 0.2);
+}
+.btn:disabled {
+  background: rgba(120, 120, 128, 0.2);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: rgba(0, 0, 0, 0.35);
+  cursor: not-allowed;
+  transform: none;
+  text-shadow: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 1px 3px rgba(0, 0, 0, 0.05);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+.btn:disabled::before { opacity: 0.3; }
+.btn:disabled::after { display: none; }
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.28);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  color: var(--text);
+  border: 1px solid var(--border-glass);
+  text-shadow: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 2px rgba(255, 255, 255, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.06);
+}
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.btn-download {
+  background: linear-gradient(180deg,
+    rgba(52, 199, 89, 0.75) 0%,
+    rgba(52, 199, 89, 0.9) 100%);
+  padding: 16px 40px;
+  font-size: 16px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -1px 3px rgba(255, 255, 255, 0.3),
+    inset 0 0 30px rgba(255, 255, 255, 0.2),
+    0 8px 24px rgba(52, 199, 89, 0.35),
+    0 2px 6px rgba(0, 0, 0, 0.1);
+  text-shadow: 0 1px 2px rgba(10, 80, 30, 0.4);
+}
+.btn-download:hover {
+  background: linear-gradient(180deg,
+    rgba(52, 199, 89, 0.85) 0%,
+    rgba(52, 199, 89, 1) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 -1px 3px rgba(255, 255, 255, 0.35),
+    inset 0 0 30px rgba(255, 255, 255, 0.25),
+    0 14px 32px rgba(52, 199, 89, 0.45),
+    0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* -------------------------------------------------------------------------
+   KSS scale table
+   ------------------------------------------------------------------------- */
+.kss-table {
+  margin: 16px 0;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13.5px;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  border: 1px solid var(--border-glass);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.kss-table td {
+  padding: 10px 14px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+}
+.kss-table tr:last-child td { border-bottom: none; }
+.kss-table td:first-child {
+  text-align: center;
+  font-weight: 700;
+  width: 50px;
+  color: var(--accent);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* -------------------------------------------------------------------------
+   Info / warn tiles
+   ------------------------------------------------------------------------- */
+.warn, .info {
+  padding: 14px 18px;
+  margin: 14px 0;
+  font-size: 13.5px;
+  border-radius: var(--r-sm);
+  color: var(--text);
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.warn {
+  background: rgba(255, 149, 0, 0.18);
+  border-left: 4px solid var(--warn);
+}
+.info {
+  background: rgba(10, 132, 255, 0.15);
+  border-left: 4px solid var(--accent);
+}
+
+/* -------------------------------------------------------------------------
+   Session badge (pill)
+   ------------------------------------------------------------------------- */
+.session-badge {
+  display: inline-block;
+  background: var(--accent);
+  color: white;
+  padding: 5px 16px;
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  margin-left: 8px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(10, 132, 255, 0.35);
+  letter-spacing: -0.01em;
+}
+
+/* -------------------------------------------------------------------------
+   Grid layout for form rows
+   ------------------------------------------------------------------------- */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.error {
+  color: var(--danger);
+  font-size: 13px;
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: rgba(255, 59, 48, 0.1);
+  border-radius: var(--r-sm);
+  border-left: 3px solid var(--danger);
+}
+.error:empty { display: none; }
+
+/* -------------------------------------------------------------------------
+   Pre-task confirmation tiles
+   ------------------------------------------------------------------------- */
 .confirm-row {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 24px 0;
 }
 .confirm-btn {
-  padding: 20px; background: var(--panel-light);
-  border: 2px solid var(--border); border-radius: 12px;
-  color: var(--text); cursor: pointer; font-family: inherit;
-  font-size: 15px; font-weight: 600; text-align: center;
-  transition: all 0.2s;
+  padding: 24px 20px;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--r-md);
+  color: var(--text);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  transition: all var(--dur) var(--ease);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 2px rgba(255, 255, 255, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.05);
 }
 .confirm-btn .confirm-icon {
-  display: block; font-size: 32px; margin-bottom: 8px;
+  display: block;
+  font-size: 32px;
+  margin-bottom: 10px;
 }
-.confirm-btn:hover { border-color: var(--accent); }
+.confirm-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--border-strong);
+}
 .confirm-btn.confirmed {
-  background: rgba(16, 185, 129, 0.1); border-color: var(--success); color: var(--success);
+  background: rgba(52, 199, 89, 0.15);
+  border-color: rgba(52, 199, 89, 0.6);
+  color: #1a7a3d;
+  box-shadow: 0 4px 14px rgba(52, 199, 89, 0.25);
 }
 .confirm-btn.confirmed .confirm-icon::before { content: '✓ '; }
 
-/* ============================================================ */
-/* TASK SCREEN                                                  */
-/* ============================================================ */
+/* -------------------------------------------------------------------------
+   Task screen — the driving simulator page
+   Dark glass + video panel + brake pedal + KSS strip
+   ------------------------------------------------------------------------- */
 #screen-task {
-  max-width: none; margin: 0; padding: 0;
-  border-radius: 0; box-shadow: none; border: none;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
   background: transparent;
   min-height: 100vh;
-  display: flex; flex-direction: column;
+  display: flex;
+  flex-direction: column;
+}
+#screen-task::before { display: none; }
+
+/* Task-only body treatment — deeper background for immersion */
+body:has(#screen-task:not(.hidden)) {
+  background: #0d1017;
+  padding: 0;
+}
+body:has(#screen-task:not(.hidden))::before {
+  background:
+    radial-gradient(circle at 10% 10%, rgba(10, 132, 255, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 90% 15%, rgba(88, 86, 214, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 50% 100%, rgba(52, 199, 89, 0.06) 0%, transparent 50%);
 }
 
+/* Sticky glass header (car-dashboard style) */
 .task-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 12px 24px; background: rgba(0,0,0,0.5);
-  border-bottom: 1px solid var(--border); backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 28px;
+  background: var(--glass-dark);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border-bottom: 1px solid var(--border-dark);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
-.task-header-left { display: flex; align-items: center; gap: 16px; }
+.task-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
 .task-id-badge {
-  padding: 6px 14px; background: var(--accent); color: white;
-  border-radius: 20px; font-weight: 600; font-size: 13px;
+  padding: 6px 16px;
+  background: var(--accent);
+  color: white;
+  border-radius: var(--r-pill);
+  font-weight: 600;
+  font-size: 13px;
+  box-shadow: 0 2px 8px rgba(10, 132, 255, 0.4);
+  letter-spacing: -0.01em;
 }
 
+/* Live status indicator (pulsing dot) */
 .status-indicator {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 14px; background: rgba(16, 185, 129, 0.15);
-  border-radius: 20px; font-size: 13px; color: var(--success);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(52, 199, 89, 0.18);
+  border: 1px solid rgba(52, 199, 89, 0.4);
+  border-radius: var(--r-pill);
+  font-size: 13px;
+  color: #6ee397;
   font-weight: 500;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 .status-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: var(--success); animation: pulse-dot 1.5s infinite;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  animation: pulse-dot 1.5s infinite;
+  box-shadow: 0 0 8px var(--success);
 }
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(1.2); }
+  50% { opacity: 0.5; transform: scale(1.3); }
 }
 
+/* Timer display */
 .task-timer {
-  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-  font-size: 20px; font-weight: 700; color: var(--text);
-  background: rgba(0,0,0,0.4); padding: 6px 16px; border-radius: 8px;
+  font-family: "SF Mono", "Monaco", "Consolas", ui-monospace, monospace;
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 8px 20px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--border-dark);
+  letter-spacing: 0.03em;
+  font-variant-numeric: tabular-nums;
 }
 
+/* Main task grid: video (3fr) + brake (1fr) */
 .task-main {
   flex: 1;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-  padding: 24px;
+  grid-template-columns: 3fr 1fr;
+  gap: 32px;
+  padding: 32px 40px;
   align-items: center;
-  max-width: 1400px;
+  max-width: 100%;
   margin: 0 auto;
   width: 100%;
 }
 
-/* Video panel */
+/* Video panel — glass edge with soft glow */
 .video-panel {
-  background: #000; border-radius: 16px; overflow: hidden;
+  background: #000;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  width: 100%;
   aspect-ratio: 16/9;
-  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.6);
-  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg), 0 0 40px rgba(10, 132, 255, 0.08);
+  border: 1px solid var(--border-dark);
   position: relative;
 }
 #task-video { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-/* Brake pedal */
+/* Brake panel */
 .brake-panel {
-  display: flex; align-items: center; justify-content: center; flex-direction: column;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
   gap: 16px;
+  padding-right: 8px;
 }
-.brake-label { color: var(--text-dim); font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
+.brake-label {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+}
+
+/* The brake pedal — realistic 3D look preserved from previous design */
 .brake-pedal {
-  width: 220px; height: 320px;
+  width: 220px;
+  height: 320px;
   background: linear-gradient(180deg, #7f1d1d 0%, #dc2626 45%, #991b1b 100%);
   border-radius: 24px 24px 40px 40px;
-  border: none; cursor: pointer;
+  border: none;
+  cursor: pointer;
   position: relative;
   box-shadow:
-    inset 0 4px 12px rgba(255,255,255,0.15),
-    inset 0 -8px 20px rgba(0,0,0,0.4),
+    inset 0 4px 12px rgba(255, 255, 255, 0.15),
+    inset 0 -8px 20px rgba(0, 0, 0, 0.4),
     0 20px 40px -10px rgba(220, 38, 38, 0.5),
-    0 12px 24px rgba(0,0,0,0.4);
-  transition: all 0.08s;
-  font-family: inherit; color: white;
-  font-size: 28px; font-weight: 800; letter-spacing: 4px;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    0 12px 24px rgba(0, 0, 0, 0.4);
+  transition: all 100ms var(--ease);
+  font-family: inherit;
+  color: white;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
   overflow: hidden;
 }
-/* pedal grip lines */
 .brake-pedal::before {
-  content: ''; position: absolute; left: 15%; right: 15%;
+  content: '';
+  position: absolute;
+  left: 15%; right: 15%;
   top: 30px; bottom: 30px;
   background:
     repeating-linear-gradient(0deg,
       transparent 0, transparent 22px,
-      rgba(0,0,0,0.25) 22px, rgba(0,0,0,0.25) 26px);
+      rgba(0, 0, 0, 0.25) 22px, rgba(0, 0, 0, 0.25) 26px);
   border-radius: 12px;
   pointer-events: none;
 }
 .brake-pedal:hover {
   box-shadow:
-    inset 0 4px 12px rgba(255,255,255,0.2),
-    inset 0 -8px 20px rgba(0,0,0,0.4),
+    inset 0 4px 12px rgba(255, 255, 255, 0.2),
+    inset 0 -8px 20px rgba(0, 0, 0, 0.4),
     0 24px 48px -10px rgba(220, 38, 38, 0.7),
-    0 12px 24px rgba(0,0,0,0.5);
+    0 12px 24px rgba(0, 0, 0, 0.5);
 }
 .brake-pedal:active,
 .brake-pedal.pressed {
   transform: translateY(6px);
   box-shadow:
-    inset 0 4px 12px rgba(255,255,255,0.1),
-    inset 0 -4px 12px rgba(0,0,0,0.5),
+    inset 0 4px 12px rgba(255, 255, 255, 0.1),
+    inset 0 -4px 12px rgba(0, 0, 0, 0.5),
     0 4px 12px -4px rgba(220, 38, 38, 0.4),
-    0 4px 8px rgba(0,0,0,0.3);
+    0 4px 8px rgba(0, 0, 0, 0.3);
 }
 .brake-pedal.beep-active {
   animation: beep-pulse 0.5s ease-out;
@@ -260,61 +745,187 @@ textarea { min-height: 60px; resize: vertical; }
   }
 }
 
-/* KSS strip */
+/* KSS strip — bottom glass bar */
 .kss-strip {
-  background: rgba(0,0,0,0.4);
-  border-top: 1px solid var(--border);
-  padding: 20px 24px;
-  backdrop-filter: blur(10px);
+  background: var(--glass-dark);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border-top: 1px solid var(--border-dark);
+  padding: 20px 28px 22px;
+  transition: background var(--dur) var(--ease);
 }
 .kss-strip-title {
-  text-align: center; font-size: 14px; color: var(--text-dim);
-  margin-bottom: 12px; font-weight: 500;
+  text-align: center;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 14px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  transition: color var(--dur) var(--ease);
 }
 .kss-current {
-  text-align: center; font-size: 13px; color: var(--text-dim); margin-top: 8px;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 10px;
 }
-.kss-current strong { color: var(--success); }
+.kss-current strong { color: #6ee397; font-weight: 600; }
+
+/* 9 KSS buttons — color-graded from alert (green) to sleepy (red) */
 .kss-buttons-row {
-  display: grid; grid-template-columns: repeat(9, 1fr);
-  gap: 8px; max-width: 1200px; margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 10px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 .kss-btn {
-  padding: 12px 6px; border: 2px solid transparent;
-  border-radius: 10px; cursor: pointer; font-family: inherit;
-  text-align: center; transition: all 0.15s;
-  color: white; font-weight: 600;
-  display: flex; flex-direction: column; align-items: center; gap: 2px;
-}
-.kss-btn .kss-num { font-size: 22px; font-weight: 800; }
-.kss-btn .kss-label { font-size: 10px; opacity: 0.9; line-height: 1.2; }
-.kss-btn:hover { transform: translateY(-3px); }
-.kss-btn.selected { border-color: white; transform: translateY(-3px) scale(1.05); box-shadow: 0 8px 16px rgba(0,0,0,0.4); }
-.kss-btn[data-value="1"] { background: #059669; }
-.kss-btn[data-value="2"] { background: #10b981; }
-.kss-btn[data-value="3"] { background: #22c55e; }
-.kss-btn[data-value="4"] { background: #84cc16; }
-.kss-btn[data-value="5"] { background: #eab308; }
-.kss-btn[data-value="6"] { background: #f59e0b; }
-.kss-btn[data-value="7"] { background: #f97316; }
-.kss-btn[data-value="8"] { background: #ef4444; }
-.kss-btn[data-value="9"] { background: #b91c1c; }
-
-/* Small emergency exit for testing */
-.exit-btn {
-  position: fixed; bottom: 16px; right: 16px;
-  padding: 6px 12px; background: rgba(0,0,0,0.6);
-  color: var(--text-dim); border: 1px solid var(--border);
-  border-radius: 6px; font-size: 11px; cursor: pointer;
+  padding: 14px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--r-md);
+  cursor: pointer;
   font-family: inherit;
+  text-align: center;
+  transition: all var(--dur) var(--ease-spring);
+  color: white;
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
 }
-.exit-btn:hover { background: rgba(0,0,0,0.8); color: var(--text); }
+.kss-btn::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 45%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.2), transparent);
+  pointer-events: none;
+  border-radius: var(--r-md) var(--r-md) 0 0;
+}
+.kss-btn .kss-num {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.kss-btn .kss-label {
+  font-size: 10.5px;
+  opacity: 0.9;
+  line-height: 1.2;
+  font-weight: 500;
+}
+.kss-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.kss-btn.selected {
+  transform: translateY(-4px) scale(1.06);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.6), 0 12px 24px rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+.kss-btn[data-value="1"] { background: linear-gradient(180deg, #059669, #047857); }
+.kss-btn[data-value="2"] { background: linear-gradient(180deg, #10b981, #059669); }
+.kss-btn[data-value="3"] { background: linear-gradient(180deg, #22c55e, #16a34a); }
+.kss-btn[data-value="4"] { background: linear-gradient(180deg, #84cc16, #65a30d); }
+.kss-btn[data-value="5"] { background: linear-gradient(180deg, #eab308, #ca8a04); }
+.kss-btn[data-value="6"] { background: linear-gradient(180deg, #f59e0b, #d97706); }
+.kss-btn[data-value="7"] { background: linear-gradient(180deg, #f97316, #ea580c); }
+.kss-btn[data-value="8"] { background: linear-gradient(180deg, #ef4444, #dc2626); }
+.kss-btn[data-value="9"] { background: linear-gradient(180deg, #b91c1c, #991b1b); }
 
-/* Test mode badge */
+/* KSS strip awaiting-rating state (Dynamic Island vibe) */
+.kss-strip.awaiting {
+  animation: kss-await-pulse 1.4s ease-in-out infinite;
+}
+@keyframes kss-await-pulse {
+  0%, 100% { background: var(--glass-dark); }
+  50% { background: rgba(10, 132, 255, 0.28); }
+}
+.kss-strip-title.awaiting-highlight {
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  transform: scale(1.02);
+}
+
+/* Emergency exit button — bottom-right corner */
+.exit-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  color: rgba(255, 255, 255, 0.75);
+  border: 1px solid var(--border-dark);
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all var(--dur) var(--ease);
+  z-index: 20;
+}
+.exit-btn:hover {
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* Test mode indicator */
 .test-mode-badge {
-  background: var(--warn); color: black; padding: 4px 12px;
-  border-radius: 20px; font-size: 12px; font-weight: 700;
-  margin-left: 8px;
+  background: var(--warn);
+  color: white;
+  padding: 4px 12px;
+  border-radius: var(--r-pill);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 8px rgba(255, 149, 0, 0.4);
+}
+
+/* -------------------------------------------------------------------------
+   Responsive breakpoints
+   ------------------------------------------------------------------------- */
+@media (max-width: 900px) {
+  .form-row { grid-template-columns: 1fr; }
+  .confirm-row { grid-template-columns: 1fr; }
+  .task-main {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px;
+  }
+  .brake-panel { padding-right: 0; }
+  .kss-buttons-row {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+  .kss-btn { padding: 10px 4px; }
+  .kss-btn .kss-num { font-size: 20px; }
+  .kss-btn .kss-label { font-size: 9px; }
+  .task-header {
+    padding: 12px 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .task-timer { font-size: 16px; padding: 6px 14px; }
+}
+@media (max-width: 500px) {
+  body { padding: 10px; }
+  .screen { padding: 20px; border-radius: var(--r-md); }
+  .kss-buttons-row { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* -------------------------------------------------------------------------
+   Accessibility — respect reduced motion
+   ------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 </style>
 </head>
@@ -328,21 +939,21 @@ textarea { min-height: 60px; resize: vertical; }
   <p class="subtitle">Camera and Wearable-based Feasibility Study — VITAL Project, EDAG India / THI Germany</p>
 
   <h2>1. What this study is about</h2>
-  <p>This is a research study investigating how well camera-based and wearable-based systems can detect changes in drowsiness during the workday. It is part of a Master's thesis at Technische Hochschule Ingolstadt (THI) in cooperation with EDAG Engineering Group.</p>
-  <p>The goal is to check technical feasibility, data quality, and comparability of the two approaches — not to make medical or health assessments.</p>
+  <p>This is a research study conducted as part of a Master's thesis at Technische Hochschule Ingolstadt (THI) in cooperation with EDAG Engineering Group. The thesis (Project VITAL) develops a real-time drowsiness detection system that combines a wearable-based heart-rate-variability (HRV) model with a camera-based facial-feature model, with the goal of evaluating whether combining these two modalities improves detection reliability compared to either modality alone.</p>
+  <p>This session collects reference data on how each modality performs on healthy adult subjects during a passive monotonous-driving task. Your data will be used to evaluate the model's per-modality accuracy and, if you consent, to further train the wearable HRV model. The study makes no medical or diagnostic claims about individual participants.</p>
 
   <h2>2. What participation involves</h2>
-  <p>You will complete <strong>three sessions on the same day</strong>: morning (M1), after lunch (M2), and end of workday (M3). Each session lasts about <strong>40 minutes</strong>, matching the session duration used in the research dataset (UL-DD) that this study builds on.</p>
-  <p>Total time commitment: approximately 2.5-3 hours across the day (including a short intro before the first session).</p>
+  <p>You will complete <strong>three sessions</strong>: morning (M1), after lunch (M2), and end of workday (M3). Each session lasts about <strong>40 minutes</strong>, matching the session duration used in the research dataset (UL-DD) that the model was trained on.</p>
   <p>During each session you will:</p>
   <ul>
     <li>Wear a Samsung Galaxy Watch on your non-dominant wrist</li>
     <li>Sit in front of a laptop with a camera facing you</li>
     <li>Watch a 40-minute highway driving video</li>
-    <li>When you hear a beep, click the on-screen brake pedal as fast as possible</li>
-    <li>Continuously rate your current sleepiness using the KSS buttons visible below the video</li>
-    <li>Answer a few short questions about sleep, meals, and caffeine before each session</li>
+    <li>Listen for beeps — these are triggered by our HRV and camera models when they detect signs of drowsiness in your data</li>
+    <li>When you hear a beep, click the on-screen brake pedal as fast as possible (this measures how quickly you can react)</li>
+    <li>After each brake response, rate your current sleepiness on the KSS scale shown below the video</li>
   </ul>
+  <p>Some sessions may have very few beeps or none at all — this simply means the models did not detect drowsiness during that session, which is a valid result.</p>
 
   <h2>3. Data we collect</h2>
   <ul>
@@ -358,7 +969,7 @@ textarea { min-height: 60px; resize: vertical; }
   <div class="info">
     <strong>Cross-border transfer:</strong> Data collected in India will be transferred to and analyzed in Germany at THI / EDAG for the purpose of this research.
   </div>
-  <p>Data will be stored until the completion of the associated thesis research and subsequent scientific publication. Anonymized aggregate results may be retained indefinitely for research reproducibility.</p>
+  <p>Data will be stored until the completion of the associated thesis research and subsequent scientific publication.</p>
   <p>Access to your data is limited to the researcher (Shubh Patel, THI/EDAG) and the thesis supervisor (Prof. Schwerd, THI). Data will not be shared with anyone else without your renewed consent.</p>
 
   <h2>5. Your rights</h2>
@@ -396,9 +1007,9 @@ textarea { min-height: 60px; resize: vertical; }
   <p><strong>Under India Digital Personal Data Protection Act 2023:</strong> Consent for processing personal data including biometric data. Explicit consent for cross-border transfer to Germany. Right to withdraw consent at any time.</p>
 
   <h2>9. Contact</h2>
-  <p><strong>Researcher:</strong> Shubh Patel — [your.email@edag.com] / [your.thi.email@thi.de]</p>
-  <p><strong>Supervisor:</strong> Prof. Schwerd, THI Ingolstadt</p>
-  <p><strong>EDAG Data Protection contact:</strong> [DPO contact to be added]</p>
+  <p><strong>Researcher:</strong> Shubhkumar Patel — shubhkumar.patel@edag.com</p>
+  <p><strong>Manager (EDAG):</strong> Johann Propp — johann.propp@edag.com</p>
+  <p><strong>Thesis Supervisor:</strong> Prof. Schwerd, THI Ingolstadt</p>
 
   <h2>10. Consent</h2>
   <p>Please check the boxes below to indicate your consent.</p>
@@ -461,17 +1072,17 @@ textarea { min-height: 60px; resize: vertical; }
     </div>
     <div>
       <label>Time you woke up this morning</label>
-      <input type="text" id="ctx-wake-time" placeholder="e.g. 07:00">
+      <input type="text" id="ctx-wake-time" class="time-input" placeholder="e.g. 07:00">
     </div>
   </div>
   <div class="form-row">
     <div>
       <label>Time of last meal</label>
-      <input type="text" id="ctx-meal-time" placeholder="e.g. 13:15">
+      <input type="text" id="ctx-meal-time" class="time-input" placeholder="e.g. 13:15">
     </div>
     <div>
       <label>Time of last caffeine</label>
-      <input type="text" id="ctx-caffeine-time" placeholder="e.g. 08:30 or 'none today'">
+      <input type="text" id="ctx-caffeine-time" class="time-input" placeholder="e.g. 08:30 or 'none today'">
     </div>
   </div>
 
@@ -555,11 +1166,13 @@ textarea { min-height: 60px; resize: vertical; }
 
   <h2>What will happen</h2>
   <ol>
-    <li>A highway driving video will play in the top-left of the screen.</li>
+    <li>A highway driving video will play in the main area of the screen.</li>
     <li>Watch the video normally — imagine you are driving.</li>
-    <li>Every few seconds you will hear a short <strong>beep</strong>.</li>
-    <li>When you hear a beep, click the big <strong>BRAKE pedal</strong> on the right as fast as you can.</li>
-    <li>Throughout the session, click your current <strong>KSS rating</strong> (1-9) using the buttons at the bottom. Click again whenever your state changes — especially right after each beep.</li>
+    <li>Our HRV and camera models continuously analyze your data in the background. When either model detects signs of drowsiness in you, it will trigger a short <strong>beep</strong>.</li>
+    <li>The moment you hear a beep, click the big <strong>BRAKE pedal</strong> on the right as fast as you can.</li>
+    <li>After each brake press, click your current <strong>KSS rating</strong> (1-9) using the buttons at the bottom of the screen.</li>
+    <li>You can also click a KSS rating anytime during the session if your state changes.</li>
+    <li>If no beep occurs during the session, that just means the models did not detect drowsiness. You can still update your KSS rating at any time.</li>
     <li>The session runs for 40 minutes.</li>
   </ol>
 
@@ -672,22 +1285,19 @@ textarea { min-height: 60px; resize: vertical; }
 const TEST_MODE = new URLSearchParams(window.location.search).get('test') === '1';
 const TASK_DURATION_SEC = TEST_MODE ? 30 : 2400;  // 40 min = 2400 sec (matches UL-DD)
 
-// Beep schedule — deterministic, same for every participant + session at a given duration.
-// Uses a seeded PRNG so the schedule is reproducible across all sessions.
-// For 40 min: ~79 beeps, avg interval ~30 sec (range 15-45 sec).
-function generateBeepSchedule(durationSec, seed = 12345) {
-  let s = seed;
-  const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
-  const schedule = [];
-  let t = 15;
-  while (t < durationSec - 20) {
-    schedule.push(Math.round(t));
-    t += 15 + rand() * 30;  // interval 15-45 sec
-  }
-  return schedule;
-}
-const BEEP_SCHEDULE_TEST = [5, 12, 22];
-const BEEP_SCHEDULE_SEC = TEST_MODE ? BEEP_SCHEDULE_TEST : generateBeepSchedule(TASK_DURATION_SEC);
+// External-trigger mode: no scheduled beeps.
+// Beeps are triggered by:
+//   (a) the researcher pressing SPACE key when they see the HRV or camera pipeline output "DROWSY"
+//   (b) an optional WebSocket message from the Python pipeline at ws://localhost:5555
+//
+// After each beep:
+//   - Participant clicks the BRAKE pedal → reaction time captured
+//   - KSS strip pulses to prompt rating
+//   - Participant clicks a KSS number → rating recorded, paired with the beep event
+//
+// The response window is 5 seconds (drowsy people react more slowly than the 3 sec
+// used in fixed-schedule PVT tasks).
+const RESPONSE_WINDOW_MS = 5000;
 
 const KSS_LABELS = [
   { num: 1, label: 'Extremely alert' },
@@ -782,6 +1392,28 @@ document.getElementById('btn-goto-context').addEventListener('click', () => {
 document.getElementById('ctx-beta-blockers').addEventListener('change', (e) => {
   document.getElementById('beta-warn').style.display = (e.target.value === 'yes') ? 'block' : 'none';
 });
+
+// Auto-format time inputs on blur: "8" → "08:00", "8:3" → "08:03", "830" → "08:30"
+function formatTimeInput(input) {
+  let v = input.value.trim();
+  if (!v) return;
+  // Skip if user typed a non-time note like "none today"
+  if (/[a-z]/i.test(v)) return;
+  // Digits with optional colon
+  if (/^\d{1,2}$/.test(v)) {
+    input.value = v.padStart(2, '0') + ':00';
+  } else if (/^\d{3}$/.test(v)) {
+    input.value = '0' + v.slice(0, 1) + ':' + v.slice(1);
+  } else if (/^\d{4}$/.test(v)) {
+    input.value = v.slice(0, 2) + ':' + v.slice(2);
+  } else if (/^\d{1,2}:\d{1,2}$/.test(v)) {
+    const [h, m] = v.split(':');
+    input.value = h.padStart(2, '0') + ':' + m.padStart(2, '0');
+  }
+}
+document.querySelectorAll('.time-input').forEach(input => {
+  input.addEventListener('blur', () => formatTimeInput(input));
+});
 document.getElementById('btn-goto-instructions').addEventListener('click', () => {
   const errEl = document.getElementById('context-error');
   errEl.textContent = '';
@@ -790,7 +1422,6 @@ document.getElementById('btn-goto-instructions').addEventListener('click', () =>
   if (beta === 'yes') return errEl.textContent = 'This study excludes participants on beta-blockers.';
   const wellbeing = document.getElementById('ctx-wellbeing').value;
   if (wellbeing === 'unwell') return errEl.textContent = 'If unwell, please reschedule.';
-
   STATE.context = {
     sleep_hours: document.getElementById('ctx-sleep-hours').value,
     wake_time: document.getElementById('ctx-wake-time').value,
@@ -843,12 +1474,13 @@ const taskTimer = document.getElementById('task-timer');
 const taskVideo = document.getElementById('task-video');
 const exitBtn = document.getElementById('exit-btn');
 
-let beepIdx = 0;
 let pendingBeepTime = null;
+let awaitingKssForBeepIdx = null;   // index into STATE.beeps, or null
 let currentKssSelection = null;
 let timerInterval = null;
 let scheduleInterval = null;
 let taskEnded = false;
+let wsClient = null;
 
 // Populate KSS buttons
 KSS_LABELS.forEach(k => {
@@ -866,9 +1498,13 @@ function startTask() {
   STATE.kssClicks = [];
   STATE.beeps = [];
   STATE.falseClicks = [];
-  beepIdx = 0;
   pendingBeepTime = null;
+  awaitingKssForBeepIdx = null;
   taskEnded = false;
+
+  // Try to connect to Python-side WebSocket for automatic triggering.
+  // Falls back to keyboard trigger if WebSocket unavailable.
+  connectPipelineWebSocket();
 
   // Unmute the video (was muted for autoplay policy compliance)
   taskVideo.muted = false;
@@ -880,36 +1516,58 @@ function startTask() {
   scheduleInterval = setInterval(scheduleTick, 100);
 }
 
+function connectPipelineWebSocket() {
+  try {
+    wsClient = new WebSocket('ws://localhost:5555');
+    wsClient.onopen = () => console.log('[VITAL] WebSocket connected — model can trigger beeps automatically');
+    wsClient.onmessage = (event) => {
+      // Any message triggers a beep. Payload can be "drowsy_hrv", "drowsy_camera", etc.
+      const source = event.data || 'unknown';
+      triggerBeep(source);
+    };
+    wsClient.onerror = () => console.log('[VITAL] WebSocket not available — press SPACE to trigger a beep manually');
+    wsClient.onclose = () => console.log('[VITAL] WebSocket closed');
+  } catch (e) {
+    console.log('[VITAL] WebSocket unavailable:', e.message);
+  }
+}
+
 function updateTimer() {
   const elapsedSec = (performance.now() - STATE.startPerf) / 1000;
   const m = Math.floor(elapsedSec / 60);
   const s = Math.floor(elapsedSec % 60).toString().padStart(2, '0');
-  taskTimer.textContent = `${m}:${s}`;
+  const totalM = Math.floor(STATE.taskDurationSec / 60);
+  const totalS = (STATE.taskDurationSec % 60).toString().padStart(2, '0');
+  taskTimer.textContent = `${m}:${s} / ${totalM}:${totalS}`;
 }
 
 function scheduleTick() {
   if (taskEnded) return;
   const elapsedSec = (performance.now() - STATE.startPerf) / 1000;
-  while (beepIdx < BEEP_SCHEDULE_SEC.length && elapsedSec >= BEEP_SCHEDULE_SEC[beepIdx]) {
-    triggerBeep();
-    beepIdx++;
-  }
   if (elapsedSec >= STATE.taskDurationSec) endTask();
 }
 
-function triggerBeep() {
+function triggerBeep(source = 'manual') {
+  if (taskEnded) return;
+  // If a previous beep is still awaiting response, log it as no-response before starting new
+  if (pendingBeepTime !== null) {
+    // The previous beep gets no click; leave its record as null
+    pendingBeepTime = null;
+  }
   playBeep();
   const now = performance.now();
   pendingBeepTime = now;
   STATE.beeps.push({
     beep_time_ms: now - STATE.startPerf,
+    source: source,
     click_time_ms: null,
     reaction_time_ms: null,
+    kss_after: null,
     kss_at_beep: currentKssSelection,
   });
   // Visual pulse on brake
   brakeBtn.classList.remove('beep-active');
-  void brakeBtn.offsetWidth;   // force reflow to restart animation
+  void brakeBtn.offsetWidth;
   brakeBtn.classList.add('beep-active');
   setTimeout(() => brakeBtn.classList.remove('beep-active'), 500);
 }
@@ -919,13 +1577,19 @@ brakeBtn.addEventListener('click', () => {
   const now = performance.now();
   if (pendingBeepTime !== null) {
     const rt = now - pendingBeepTime;
-    if (rt <= 3000) {
-      const beep = STATE.beeps[STATE.beeps.length - 1];
+    if (rt <= RESPONSE_WINDOW_MS) {
+      const beepIdxInState = STATE.beeps.length - 1;
+      const beep = STATE.beeps[beepIdxInState];
       beep.click_time_ms = now - STATE.startPerf;
       beep.reaction_time_ms = rt;
       pendingBeepTime = null;
+      awaitingKssForBeepIdx = beepIdxInState;
       brakeBtn.classList.add('pressed');
       setTimeout(() => brakeBtn.classList.remove('pressed'), 150);
+      // Prompt KSS rating
+      document.querySelector('.kss-strip').classList.add('awaiting');
+      document.querySelector('.kss-strip-title').classList.add('awaiting-highlight');
+      document.querySelector('.kss-strip-title').textContent = 'Now rate your current sleepiness →';
       return;
     }
   }
@@ -934,12 +1598,31 @@ brakeBtn.addEventListener('click', () => {
   setTimeout(() => brakeBtn.classList.remove('pressed'), 150);
 });
 
+// SPACE key manually triggers a beep — for researcher use when watching pipeline console
+document.addEventListener('keydown', (e) => {
+  if (e.code === 'Space' && !taskEnded && !document.getElementById('screen-task').classList.contains('hidden')) {
+    e.preventDefault();
+    triggerBeep('keyboard');
+  }
+});
+
 function onKssClick(value) {
   if (taskEnded) return;
   const now = performance.now();
   const timestamp_ms = STATE.startPerf ? now - STATE.startPerf : 0;
-  STATE.kssClicks.push({ timestamp_ms, value });
+  const kssEvent = { timestamp_ms, value, associated_beep_idx: awaitingKssForBeepIdx };
+  STATE.kssClicks.push(kssEvent);
   currentKssSelection = value;
+
+  // If this KSS click is a response to a beep+brake, record it on that beep
+  if (awaitingKssForBeepIdx !== null) {
+    STATE.beeps[awaitingKssForBeepIdx].kss_after = value;
+    awaitingKssForBeepIdx = null;
+    document.querySelector('.kss-strip').classList.remove('awaiting');
+    document.querySelector('.kss-strip-title').classList.remove('awaiting-highlight');
+    document.querySelector('.kss-strip-title').textContent = 'How sleepy do you feel right now?';
+  }
+
   // Visual selected state
   kssButtonsEl.querySelectorAll('.kss-btn').forEach(b => b.classList.remove('selected'));
   kssButtonsEl.querySelector(`.kss-btn[data-value="${value}"]`).classList.add('selected');
@@ -996,7 +1679,7 @@ document.getElementById('btn-download').addEventListener('click', () => {
   const medianRt = rts.length ? [...rts].sort((a,b)=>a-b)[Math.floor(rts.length/2)] : null;
 
   const output = {
-    schema_version: '2.0',
+    schema_version: '3.0',
     participant_id: STATE.participantId,
     session: STATE.session,
     test_mode: STATE.testMode,
@@ -1008,7 +1691,7 @@ document.getElementById('btn-download').addEventListener('click', () => {
     kss_clicks: STATE.kssClicks,
     beeps: STATE.beeps,
     false_clicks: STATE.falseClicks,
-    beep_schedule_sec: BEEP_SCHEDULE_SEC,
+    trigger_mode: 'external (WebSocket ws://localhost:5555 or SPACE key)',
     summary: {
       n_beeps: totalBeeps,
       n_responded: responded,
