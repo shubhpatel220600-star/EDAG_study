@@ -1527,7 +1527,7 @@ function startTask() {
 
 function connectPipelineWebSocket() {
   try {
-    wsClient = new WebSocket('ws://localhost:5555');
+    wsClient = new WebSocket('ws://127.0.0.1:5555');
     wsClient.onopen = () => console.log('[VITAL] WebSocket connected — model can trigger beeps automatically');
     wsClient.onmessage = (event) => {
       // Any message triggers a beep. Payload can be "drowsy_hrv", "drowsy_camera", etc.
